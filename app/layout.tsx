@@ -1,13 +1,14 @@
-import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
-import "./globals.css";
+import './globals.css'
+import { Inter } from 'next/font/google'
+import { ThemeProvider } from '../context/ThemeContext'
+import ThemeSelector from '../components/ThemeSelector'
 
-const poppins = Poppins({ subsets: ["latin"], weight: ["400", "600", "700"] });
+const inter = Inter({ subsets: ['latin'] })
 
-export const metadata: Metadata = {
-  title: "Sajid Hussain - Portfolio",
-  description: "Personal portfolio website of Sajid Hussain showcasing projects and skills",
-};
+export const metadata = {
+  title: 'Sajid Hussain - Portfolio',
+  description: 'Full Stack Developer Portfolio',
+}
 
 export default function RootLayout({
   children,
@@ -16,9 +17,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${poppins.className} bg-gray-50 dark:bg-gray-900`}>
-        {children}
+      <body className={inter.className} suppressHydrationWarning>
+       
+          {children}
+        
       </body>
     </html>
-  );
+  )
 }

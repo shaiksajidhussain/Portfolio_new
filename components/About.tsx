@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import styled, { keyframes } from 'styled-components'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -10,19 +10,29 @@ import 'aos/dist/aos.css'
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger)
 
-// Add a fixed array of random images
-const randomImages = [
-  'https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png',
-  'https://www.w3.org/html/logo/badge/html5-badge-h-solo.png',
-  'https://upload.wikimedia.org/wikipedia/commons/d/d5/CSS3_logo_and_wordmark.svg',
-  'https://getbootstrap.com/docs/5.3/assets/brand/bootstrap-logo-shadow.png',
-  'https://upload.wikimedia.org/wikipedia/commons/4/47/React.svg',
-  'https://upload.wikimedia.org/wikipedia/commons/9/96/Sass_Logo_Color.svg',
-  'https://cdn-icons-png.flaticon.com/512/919/919836.png',
-  'https://cdn-icons-png.flaticon.com/512/5968/5968292.png',
-  'https://cdn-icons-png.flaticon.com/512/5968/5968322.png',
-  'https://cdn-icons-png.flaticon.com/512/5968/5968350.png',
-]
+// Map each skill to a suitable image/logo
+const skillImages: Record<string, string> = {
+  'HTML': 'https://www.w3.org/html/logo/badge/html5-badge-h-solo.png',
+  'CSS': 'https://upload.wikimedia.org/wikipedia/commons/d/d5/CSS3_logo_and_wordmark.svg',
+  'Tailwind CSS': 'https://www.vectorlogo.zone/logos/tailwindcss/tailwindcss-icon.svg',
+  'Bootstrap': 'https://getbootstrap.com/docs/5.3/assets/brand/bootstrap-logo-shadow.png',
+  'JavaScript': 'https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png',
+  'React Js': 'https://upload.wikimedia.org/wikipedia/commons/4/47/React.svg',
+  'Next Js': 'https://seeklogo.com/images/N/next-js-logo-7929BCD36F-seeklogo.com.png',
+  'Express Js': 'https://upload.wikimedia.org/wikipedia/commons/6/64/Expressjs.png',
+  'Python': 'https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg',
+  'Java': 'https://upload.wikimedia.org/wikipedia/en/3/30/Java_programming_language_logo.svg',
+  'MySQL': 'https://cdn-icons-png.flaticon.com/512/5968/5968313.png',
+  'MongoDB': 'https://cdn.iconscout.com/icon/free/png-256/mongodb-5-1175140.png',
+  'Firebase': 'https://www.vectorlogo.zone/logos/firebase/firebase-icon.svg',
+  'Figma': 'https://cdn.iconscout.com/icon/free/png-256/figma-3521426-2944870.png',
+  'React Native': 'https://reactnative.dev/img/header_logo.svg',
+  'Git': 'https://cdn-icons-png.flaticon.com/512/919/919831.png',
+  'GitHub': 'https://cdn-icons-png.flaticon.com/512/25/25231.png',
+  'Netlify': 'https://www.vectorlogo.zone/logos/netlify/netlify-icon.svg',
+  'VS Code': 'https://cdn-icons-png.flaticon.com/512/906/906324.png',
+  'Jira': 'https://cdn.iconscout.com/icon/free/png-256/jira-282221.png',
+}
 
 const Container = styled.div`
   display: flex;
@@ -32,10 +42,16 @@ const Container = styled.div`
   z-index: 1;
   align-items: center;
   padding: 80px 0;
+  min-height: 100vh;
+  width: 100vw;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  background: linear-gradient(38.73deg, rgba(204, 0, 187, 0.15) 0%, rgba(201, 32, 184, 0) 50%), linear-gradient(141.27deg, rgba(0, 70, 209, 0) 50%, rgba(0, 70, 209, 0.15) 100%);
 `
 
 const Wrapper = styled.div`
-  background: linear-gradient(38.73deg, rgba(204, 0, 187, 0.15) 0%, rgba(201, 32, 184, 0) 50%), linear-gradient(141.27deg, rgba(0, 70, 209, 0) 50%, rgba(0, 70, 209, 0.15) 100%);
   width: 100%;
   clip-path: polygon(0 0, 100% 0, 100% 100%,30% 98%, 0 100%);
   position: relative;
@@ -154,6 +170,12 @@ const SkillItem = styled.div`
   &:hover img {
     animation: ${rotate360} 0.7s linear;
   }
+
+  // Glowing effect on hover
+  &:hover {
+    box-shadow: 0 0 16px 4px #854ce6, 0 0 32px 8px #5edfff44;
+    border-color: #854ce6;
+  }
 `
 
 interface SkillCategory {
@@ -185,41 +207,12 @@ const skillCategories: SkillCategory[] = [
 ]
 
 const About = () => {
-  const [viewCount, setViewCount] = useState(0)
-  const hasIncrementedRef = useRef(false)
   const skillsRef = useRef<HTMLDivElement>(null)
   const skillCardsRef = useRef<(HTMLDivElement | null)[]>([])
   const skillItemsRef = useRef<(HTMLDivElement | null)[][]>([])
 
   useEffect(() => {
     AOS.init()
-    
-    const handlePageView = async () => {
-      if (!hasIncrementedRef.current) {
-        try {
-          const response = await fetch('http://localhost:5000/api/views/skills', {
-            method: 'POST'
-          })
-          const data = await response.json()
-          setViewCount(data.count)
-          hasIncrementedRef.current = true
-        } catch (error) {
-          console.error('Error updating views:', error)
-        }
-      }
-    }
-
-    handlePageView()
-
-    document.addEventListener('visibilitychange', () => {
-      if (!hasIncrementedRef.current) {
-        handlePageView()
-      }
-    })
-    
-    return () => {
-      document.removeEventListener('visibilitychange', handlePageView)
-    }
   }, [])
 
   useEffect(() => {
@@ -308,7 +301,6 @@ const About = () => {
     <Container id="skills" ref={skillsRef}>
       <Wrapper>
         <Title className="skills-title">Skills</Title>
-        <small style={{ color: '#858584' }}>Page Views: {viewCount}</small>
         <Desc className="skills-desc">Here are some of my skills on which I have been working on for the past 2 years.</Desc>
         <SkillsContainer>
           {skillCategories.map((skill, index) => (
@@ -321,8 +313,8 @@ const About = () => {
               <SkillTitle>{skill.title}</SkillTitle>
               <SkillList>
                 {skill.skills.map((item, itemIndex) => {
-                  // Pick a random image for each skill item
-                  const imgSrc = randomImages[Math.floor(Math.random() * randomImages.length)]
+                  // Use the mapped image for each skill, fallback to a default if not found
+                  const imgSrc = skillImages[item] || 'https://cdn-icons-png.flaticon.com/512/565/565547.png'
                   return (
                     <SkillItem 
                       key={itemIndex} 

@@ -243,7 +243,7 @@ const FluidSimulation = () => {
       // Start rendering once the image is loaded
       requestAnimationFrame(update)
     }
-    img.src = 'https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?q=80&w=3687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+    img.src = 'https://res.cloudinary.com/defsu5bfc/image/upload/v1748929673/canvabg2_page-0001_kbktbi.jpg'
 
     function resize() {
       renderer.setSize(window.innerWidth, window.innerHeight)

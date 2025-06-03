@@ -4,6 +4,16 @@ import { motion } from 'framer-motion'
 import Image from 'next/image'
 import TypewriterEffect from './TypewriterEffect'
 import FluidSimulation from './FluidSimulation'
+import styled from 'styled-components'
+
+const GradientName = styled.span`
+  background: linear-gradient(90deg, #FF3CAC 0%, #784BA0 50%, #2B86C5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  font-weight: 700;
+`
 
 const Hero = () => {
   const roles = ['Backend Developer', 'Frontend Developer', 'UI/UX Designer', 'Programmer']
@@ -23,7 +33,7 @@ const Hero = () => {
           className="md:w-2/2 text-center md:text-left mb-10 md:mb-0"
         >
           <h1 className="text-6xl md:text-8xl font-bold mb-2">
-            Hi, I am <br className="block md:hidden"/><span className="text-purple-500">Sajid Hussain</span>
+            Hi, I am <br className="block md:hidden"/><GradientName>Sajid Hussain</GradientName>
           </h1>
           <div className="text-3xl md:text-4xl text-gray-300 mb-4">
              I am a <span className="text-purple-500"> <TypewriterEffect texts={roles} /></span>
