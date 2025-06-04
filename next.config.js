@@ -9,6 +9,12 @@ const nextConfig = {
       'seeklogo.com',
       'th.bing.com',
       'images.unsplash.com',
+      'www.w3.org',
+      'www.vectorlogo.zone',
+      'getbootstrap.com',
+      'cdn-icons-png.flaticon.com',
+      'cdn.iconscout.com',
+      'reactnative.dev',
     ],
   },
 };

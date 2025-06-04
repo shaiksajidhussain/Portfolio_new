@@ -221,11 +221,12 @@ const FluidSimulation = () => {
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!containerRef.current) return
+    const container = containerRef.current
+    if (!container) return
 
     const renderer = new Renderer({ dpr: 2 })
     const gl = renderer.gl as OGLRenderingContext
-    containerRef.current.appendChild(gl.canvas)
+    container.appendChild(gl.canvas)
     gl.clearColor(0.098, 0.098, 0.141, 1.0)
 
     const camera = new Camera(gl, { fov: 35 })
@@ -748,7 +749,7 @@ const FluidSimulation = () => {
       } else {
         window.removeEventListener('mousemove', updateMouse)
       }
-      containerRef.current?.removeChild(gl.canvas)
+      container.removeChild(gl.canvas)
       img.remove()
     }
   }, [])

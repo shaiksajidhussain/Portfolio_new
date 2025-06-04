@@ -7,6 +7,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import { useTheme } from '../context/ThemeContext'
+import Image from 'next/image'
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger)
@@ -333,7 +334,13 @@ const About = () => {
                         skillItemsRef.current[index][itemIndex] = el
                       }}
                     >
-                      <img src={imgSrc} alt="icon" style={{ width: 24, height: 24, marginRight: 8, borderRadius: 6, background: '#fff' }} />
+                      <Image 
+                        src={imgSrc} 
+                        alt={`${item} icon`}
+                        width={24}
+                        height={24}
+                        style={{ marginRight: 8, borderRadius: 6, background: '#fff' }}
+                      />
                       {item}
                     </SkillItem>
                   )

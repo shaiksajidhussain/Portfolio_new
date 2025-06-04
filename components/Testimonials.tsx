@@ -60,12 +60,6 @@ const glow = keyframes`
   }
 `
 
-const float = keyframes`
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-  100% { transform: translateY(0); }
-`
-
 const TestimonialCard = styled(motion.div)`
   background: rgba(35, 35, 54, 0.8);
   backdrop-filter: blur(10px);

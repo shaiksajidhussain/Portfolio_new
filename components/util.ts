@@ -42,11 +42,18 @@ export class MeshSineMaterial extends THREE.ShaderMaterial {
   }
 }
 
+// Define custom element types for JSX
+interface CustomElements {
+  bentPlaneGeometry: {
+    [key: string]: unknown;
+  };
+  meshSineMaterial: {
+    [key: string]: unknown;
+  };
+}
+
 declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      bentPlaneGeometry: any
-      meshSineMaterial: any
-    }
+  interface JSX {
+    IntrinsicElements: CustomElements;
   }
 } 
