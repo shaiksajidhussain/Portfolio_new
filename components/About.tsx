@@ -6,6 +6,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import { useTheme } from '../context/ThemeContext'
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger)
@@ -34,7 +35,7 @@ const skillImages: Record<string, string> = {
   'Jira': 'https://cdn.iconscout.com/icon/free/png-256/jira-282221.png',
 }
 
-const Container = styled.div`
+const Container = styled.div<{ $theme: string; $customBackground: string | null }>`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -48,7 +49,7 @@ const Container = styled.div`
   right: 50%;
   margin-left: -50vw;
   margin-right: -50vw;
-  background: linear-gradient(38.73deg, rgba(204, 0, 187, 0.15) 0%, rgba(201, 32, 184, 0) 50%), linear-gradient(141.27deg, rgba(0, 70, 209, 0) 50%, rgba(0, 70, 209, 0.15) 100%);
+  background: ${props => props.$customBackground ? `url(${props.$customBackground}) center/cover no-repeat` : props.$theme};
 `
 
 const Wrapper = styled.div`
@@ -210,6 +211,7 @@ const About = () => {
   const skillsRef = useRef<HTMLDivElement>(null)
   const skillCardsRef = useRef<(HTMLDivElement | null)[]>([])
   const skillItemsRef = useRef<(HTMLDivElement | null)[][]>([])
+  const { currentTheme, customBackground } = useTheme()
 
   useEffect(() => {
     AOS.init()
@@ -298,7 +300,12 @@ const About = () => {
   }, [])
 
   return (
-    <Container id="skills" ref={skillsRef}>
+    <Container 
+      id="skills" 
+      ref={skillsRef}
+      $theme={currentTheme}
+      $customBackground={customBackground}
+    >
       <Wrapper>
         <Title className="skills-title">Skills</Title>
         <Desc className="skills-desc">Here are some of my skills on which I have been working on for the past 2 years.</Desc>

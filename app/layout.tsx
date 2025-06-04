@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import './globals.css'
 import { Inter } from 'next/font/google'
 import { ThemeProvider } from '../context/ThemeContext'
@@ -5,9 +6,9 @@ import ThemeSelector from '../components/ThemeSelector'
 
 const inter = Inter({ subsets: ['latin'] })
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Sajid Hussain - Portfolio',
-  description: 'Full Stack Developer Portfolio',
+  description: 'Personal portfolio website showcasing my work and skills',
 }
 
 export default function RootLayout({
@@ -18,9 +19,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className} suppressHydrationWarning>
-       
+        <ThemeProvider>
           {children}
-        
+        </ThemeProvider>
       </body>
     </html>
   )

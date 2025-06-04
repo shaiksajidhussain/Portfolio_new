@@ -7,6 +7,41 @@ import Image from 'next/image'
 import styled, { keyframes } from 'styled-components'
 import 'aos/dist/aos.css'
 import AOS from 'aos'
+import { useTheme } from '../context/ThemeContext'
+
+const Container = styled.div<{ $theme: string; $customBackground: string | null }>`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  align-items: center;
+  padding: 80px 0;
+  min-height: 100vh;
+  width: 100vw;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  background: ${props => props.$customBackground ? `url(${props.$customBackground}) center/cover no-repeat` : props.$theme};
+`
+
+const Wrapper = styled.div`
+  width: 100%;
+  clip-path: polygon(0 0, 100% 0, 100% 100%,30% 98%, 0 100%);
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1100px;
+  gap: 12px;
+  padding: 40px 0;
+  @media (max-width: 960px) {
+    flex-direction: column;
+  }
+`
 
 const glow = keyframes`
   0% {
@@ -56,19 +91,19 @@ const GlowingCard = styled.div`
 `
 
 const Education = () => {
+  const { currentTheme, customBackground } = useTheme()
+
   useEffect(() => {
     AOS.init({ once: true })
   }, [])
 
   return (
-    <section
-      id="education"
-      className="py-20 min-h-screen"
-      style={{
-        background: `linear-gradient(38.73deg, rgba(204, 0, 187, 0.15) 0%, rgba(201, 32, 184, 0) 50%), linear-gradient(141.27deg, rgba(0, 70, 209, 0) 50%, rgba(0, 70, 209, 0.15) 100%)`
-      }}
+    <Container 
+      id="education" 
+      $theme={currentTheme}
+      $customBackground={customBackground}
     >
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <Wrapper>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -127,8 +162,8 @@ const Education = () => {
             ))}
           </div>
         </div>
-      </div>
-    </section>
+      </Wrapper>
+    </Container>
   )
 }
 
