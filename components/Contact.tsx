@@ -5,8 +5,8 @@ import { motion } from 'framer-motion'
 import { useTheme } from '../context/ThemeContext'
 import styled from 'styled-components'
 
-// const API_URL = 'https://portfolio-backend-six-ruby.vercel.app';
-const API_URL = 'http://localhost:8089';
+const API_URL = 'https://portfolio-backend-six-ruby.vercel.app';
+// const API_URL = 'http://localhost:8089';
 
 const Container = styled.div<{ $theme: string | null; $customBackground: string | null }>`
   display: flex;
