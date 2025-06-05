@@ -5,8 +5,9 @@ import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { useTheme } from '../context/ThemeContext'
 import styled from 'styled-components'
+import { useMediaQuery } from 'react-responsive'
 
-const Container = styled.div<{ $theme: string; $customBackground: string | null }>`
+const Container = styled.div<{ $theme: string | null; $customBackground: string | null }>`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -20,7 +21,10 @@ const Container = styled.div<{ $theme: string; $customBackground: string | null 
   right: 50%;
   margin-left: -50vw;
   margin-right: -50vw;
-  background: ${props => props.$customBackground ? `url(${props.$customBackground}) center/cover no-repeat` : props.$theme};
+  background: ${props => props.$customBackground ? `url(${props.$customBackground}) center/cover no-repeat` : props.$theme || '#191924'};
+  @media (max-width: 960px) {
+    flex-direction: column;
+  }
 `
 
 const Wrapper = styled.div`
@@ -37,6 +41,9 @@ const Wrapper = styled.div`
   padding: 40px 0;
   @media (max-width: 960px) {
     flex-direction: column;
+  }
+  @media (max-width: 768px) {
+    padding: 40px 1rem;
   }
 `
 
@@ -77,6 +84,30 @@ const ModalContent = styled.div`
   position: relative;
   box-shadow: 0 0 20px rgba(133,76,230,0.2);
   border: 1px solid rgba(133,76,230,0.4);
+`
+
+const MobileProjectCardContainer = styled(motion.div)`
+  flex-shrink: 0;
+  width: 280px; /* Adjust card width as needed for mobile */
+  scroll-snap-align: start;
+`
+
+const MobileProjectsScrollContainer = styled.div`
+  display: flex;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  gap: 16px; /* Adjust gap as needed */
+  padding-bottom: 16px; /* Space for scrollbar */
+  /* Hide scrollbar */
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+  &::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
+  /* Optional: Add scroll snap for a carousel feel */
+  scroll-snap-type: x mandatory;
+  width: 100%; /* Ensure it takes full width of parent */
+  padding: 0; /* Remove padding here, handle on parent */
 `
 
 const randomImages = [
@@ -171,6 +202,7 @@ const Projects = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   const [selectedFilter, setSelectedFilter] = useState('all')
   const { currentTheme, customBackground } = useTheme()
+  const isMobile = useMediaQuery({ maxWidth: 768 });
 
   // Filter logic
   const filteredProjects = selectedFilter === 'all'
@@ -211,48 +243,98 @@ const Projects = () => {
             </button>
           ))}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredProjects.map((project, index) => (
-            <motion.div
-              key={project.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              onClick={() => setOpenIndex(index)}
-            >
-              <ProjectCard>
-                <div className="relative h-48">
-                  <Image
-                    src={project.image && project.image.trim() !== '' ? project.image : randomImages[Math.floor(Math.random() * randomImages.length)]}
-                    alt={project.title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold text-white mb-2">
-                    {project.title}
-                  </h3>
-                  <p className="text-gray-300 mb-4">
-                    {project.description}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {project.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-3 py-1 bg-[rgba(133,76,230,0.1)] text-[#854ce6] rounded-full text-sm
-                                 hover:bg-[rgba(133,76,230,0.2)] transition-all duration-300"
-                      >
-                        {tag}
-                      </span>
-                    ))}
+
+        {isMobile ? (
+          // Mobile horizontal scroll view with styled components
+          <div className="w-full">
+            <MobileProjectsScrollContainer>
+              {filteredProjects.map((project, index) => (
+                <MobileProjectCardContainer
+                  key={project.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  onClick={() => setOpenIndex(index)}
+                >
+                  <ProjectCard>
+                    <div className="relative h-36">
+                      <Image
+                        src={project.image && project.image.trim() !== '' ? project.image : randomImages[Math.floor(Math.random() * randomImages.length)]}
+                        alt={project.title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <h3 className="text-lg font-semibold text-white mb-2">
+                        {project.title}
+                      </h3>
+                      <p className="text-gray-300 text-sm mb-3">
+                        {project.description}
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {project.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="px-2 py-1 bg-[rgba(133,76,230,0.1)] text-[#854ce6] rounded-full text-xs
+                                   hover:bg-[rgba(133,76,230,0.2)] transition-all duration-300"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </ProjectCard>
+                </MobileProjectCardContainer>
+              ))}
+            </MobileProjectsScrollContainer>
+          </div>
+        ) : (
+          // Desktop grid view
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredProjects.map((project, index) => (
+              <motion.div
+                key={project.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                onClick={() => setOpenIndex(index)}
+              >
+                <ProjectCard>
+                  <div className="relative h-48">
+                    <Image
+                      src={project.image && project.image.trim() !== '' ? project.image : randomImages[Math.floor(Math.random() * randomImages.length)]}
+                      alt={project.title}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
-                </div>
-              </ProjectCard>
-            </motion.div>
-          ))}
-        </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-semibold text-white mb-2">
+                      {project.title}
+                    </h3>
+                    <p className="text-gray-300 mb-4">
+                      {project.description}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {project.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-3 py-1 bg-[rgba(133,76,230,0.1)] text-[#854ce6] rounded-full text-sm
+                                   hover:bg-[rgba(133,76,230,0.2)] transition-all duration-300"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </ProjectCard>
+              </motion.div>
+            ))}
+          </div>
+        )}
 
         {/* Modal */}
         {openIndex !== null && (

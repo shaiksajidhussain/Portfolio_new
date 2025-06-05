@@ -15,6 +15,8 @@ const nextConfig = {
       'cdn-icons-png.flaticon.com',
       'cdn.iconscout.com',
       'reactnative.dev',
+      'encrypted-tbn0.gstatic.com',
+      'github.githubassets.com',
     ],
   },
 };

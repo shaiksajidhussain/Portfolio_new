@@ -9,7 +9,7 @@ import 'aos/dist/aos.css'
 import AOS from 'aos'
 import { useTheme } from '../context/ThemeContext'
 
-const Container = styled.div<{ $theme: string; $customBackground: string | null }>`
+const Container = styled.div<{ $theme: string | null; $customBackground: string | null }>`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -23,7 +23,7 @@ const Container = styled.div<{ $theme: string; $customBackground: string | null 
   right: 50%;
   margin-left: -50vw;
   margin-right: -50vw;
-  background: ${props => props.$customBackground ? `url(${props.$customBackground}) center/cover no-repeat` : props.$theme};
+  background: ${props => props.$customBackground ? `url(${props.$customBackground}) center/cover no-repeat` : props.$theme || '#191924'};
 `
 
 const Wrapper = styled.div`
@@ -88,6 +88,36 @@ const GlowingCard = styled.div`
     border: 1.5px solid #5edfff;
     transform: scale(1.025) translateY(-4px);
   }
+
+  @media (max-width: 768px) {
+    padding: 0.75rem;
+    gap: 0.75rem;
+
+    .flex-shrink-0 {
+      width: 3.5rem;
+      height: 3.5rem;
+      img {
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    h3 {
+      font-size: 1rem;
+    }
+
+    .text-primary {
+      font-size: 0.8rem;
+    }
+
+    .text-xs {
+      font-size: 0.7rem;
+    }
+
+    .text-gray-300 {
+      font-size: 0.8rem;
+    }
+  }
 `
 
 const Education = () => {
@@ -127,7 +157,7 @@ const Education = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="relative flex items-start md:pl-16"
+                className="relative flex items-start md:pl-16 mx-2"
                 data-aos="flip-right"
                 data-aos-delay={index * 100}
               >

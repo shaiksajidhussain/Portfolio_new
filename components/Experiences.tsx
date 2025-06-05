@@ -23,10 +23,14 @@ const TimelineContainer = styled.div`
       #854CE6 100%
     );
     box-shadow: 0 0 20px rgba(133, 76, 230, 0.5);
+
+    @media (max-width: 768px) {
+      left: 1rem;
+    }
   }
 `
 
-const Container = styled.div<{ $theme: string; $customBackground: string | null }>`
+const Container = styled.div<{ $theme: string | null; $customBackground: string | null }>`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -40,7 +44,7 @@ const Container = styled.div<{ $theme: string; $customBackground: string | null 
   right: 50%;
   margin-left: -50vw;
   margin-right: -50vw;
-  background: ${props => props.$customBackground ? `url(${props.$customBackground}) center/cover no-repeat` : props.$theme};
+  background: ${props => props.$customBackground ? `url(${props.$customBackground}) center/cover no-repeat` : props.$theme || '#191924'};
 `
 
 const Wrapper = styled.div`
@@ -108,6 +112,109 @@ const ExperienceCard = styled.div`
       transform: translateY(-50%) scale(1.2);
       box-shadow: 0 0 20px rgba(133, 76, 230, 0.7);
     }
+  }
+
+  @media (max-width: 768px) {
+    width: 85%;
+    margin: 2rem 0 2rem 3rem;
+    padding: 1.5rem;
+
+    &:nth-child(odd),
+    &:nth-child(even) {
+      margin-left: 3rem;
+      margin-right: 0;
+
+      &::before {
+        left: -2.5rem;
+        right: auto;
+      }
+    }
+  }
+`
+
+const MobileExperienceCard = styled.div`
+  display: none;
+  background: rgba(20, 20, 20, 0.95);
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  border: 1px solid rgba(133, 76, 230, 0.1);
+  box-shadow: 0 0 20px rgba(133, 76, 230, 0.2);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+
+  @media (max-width: 768px) {
+    display: block;
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0 30px rgba(133, 76, 230, 0.3);
+    border-color: rgba(133, 76, 230, 0.3);
+  }
+`
+
+const MobileCompanyName = styled.h3`
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #854CE6;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-shadow: 0 0 10px rgba(133, 76, 230, 0.3);
+`
+
+const MobileRole = styled.p`
+  font-size: 1.1rem;
+  color: #5edfff;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  text-shadow: 0 0 10px rgba(94, 223, 255, 0.3);
+`
+
+const MobilePeriod = styled.div`
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  background: linear-gradient(45deg, #854CE6, #5edfff);
+  color: white;
+  font-weight: 600;
+  border-radius: 25px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  box-shadow: 0 0 15px rgba(133, 76, 230, 0.2);
+`
+
+const MobileDescription = styled.p`
+  color: #e0e0e0;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+`
+
+const MobileTechStack = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+`
+
+const MobileTechTag = styled.span`
+  background: rgba(133, 76, 230, 0.1);
+  color: #5edfff;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid rgba(94, 223, 255, 0.3);
+  border-radius: 25px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+
+  &:hover {
+    background: rgba(133, 76, 230, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(133, 76, 230, 0.2);
+    border-color: rgba(94, 223, 255, 0.5);
   }
 `
 
@@ -189,7 +296,7 @@ const TechTag = styled.span`
 `
 
 const SectionTitle = styled.h2`
-  font-size: 4rem;
+  font-size: 2rem;
   font-weight: 800;
   text-align: center;
   margin-bottom: 4rem;
@@ -197,18 +304,7 @@ const SectionTitle = styled.h2`
   color: white;
   text-shadow: 0 0 20px rgba(133, 76, 230, 0.3);
   
-  &::after {
-    content: 'Experience';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 6rem;
-    font-weight: 900;
-    color: rgba(133, 76, 230, 0.1);
-    z-index: -1;
-    text-shadow: none;
-  }
+  
 `
 
 const experiences = [
@@ -275,7 +371,8 @@ const Experiences = () => {
       <Wrapper>
         <SectionTitle>Experience</SectionTitle>
         
-        <TimelineContainer>
+        {/* Desktop Timeline View */}
+        <TimelineContainer className="hidden md:block">
           {experiences.map((exp, idx) => (
             <ExperienceCard key={idx}>
               <CompanyName>{exp.company}</CompanyName>
@@ -290,6 +387,23 @@ const Experiences = () => {
             </ExperienceCard>
           ))}
         </TimelineContainer>
+
+        {/* Mobile Cards View */}
+        <div className="md:hidden space-y-4 px-4">
+          {experiences.map((exp, idx) => (
+            <MobileExperienceCard key={idx}>
+              <MobileCompanyName>{exp.company}</MobileCompanyName>
+              <MobileRole>{exp.role}</MobileRole>
+              <MobilePeriod>{exp.period}</MobilePeriod>
+              <MobileDescription>{exp.description}</MobileDescription>
+              <MobileTechStack>
+                {exp.tech.map((t, i) => (
+                  <MobileTechTag key={i}>{t}</MobileTechTag>
+                ))}
+              </MobileTechStack>
+            </MobileExperienceCard>
+          ))}
+        </div>
       </Wrapper>
     </Container>
   )

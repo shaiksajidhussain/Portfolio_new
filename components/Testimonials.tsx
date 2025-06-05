@@ -2,19 +2,19 @@
 
 import React from 'react'
 import { motion } from 'framer-motion'
-import Image from 'next/image'
+// import Image from 'next/image'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Pagination, Autoplay, EffectCoverflow } from 'swiper/modules'
 import { testimonials } from '../data/testimonialsData'
 import { useTheme } from '../context/ThemeContext'
-import styled, { keyframes } from 'styled-components'
+import styled from 'styled-components'
 
 // Import Swiper styles
 import 'swiper/css'
 import 'swiper/css/pagination'
 import 'swiper/css/effect-coverflow'
 
-const Container = styled.div<{ $theme: string; $customBackground: string | null }>`
+const Container = styled.div<{ $theme: string | null; $customBackground: string | null }>`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -28,7 +28,15 @@ const Container = styled.div<{ $theme: string; $customBackground: string | null 
   right: 50%;
   margin-left: -50vw;
   margin-right: -50vw;
-  background: ${props => props.$customBackground ? `url(${props.$customBackground}) center/cover no-repeat` : props.$theme};
+  background: ${props => props.$customBackground ? `url(${props.$customBackground}) center/cover no-repeat` : props.$theme || '#191924'};
+
+  @media (max-width: 960px) {
+    flex-direction: column;
+  }
+
+  @media (max-width: 768px) {
+    padding: 40px 1rem;
+  }
 `
 
 const Wrapper = styled.div`
@@ -48,17 +56,6 @@ const Wrapper = styled.div`
   }
 `
 
-const glow = keyframes`
-  0% {
-    box-shadow: 0 0 0px 0px #854ce6, 0 0 0px 0px #5edfff33;
-  }
-  50% {
-    box-shadow: 0 0 8px 2px #854ce6, 0 0 16px 4px #5edfff33;
-  }
-  100% {
-    box-shadow: 0 0 0px 0px #854ce6, 0 0 0px 0px #5edfff33;
-  }
-`
 
 const TestimonialCard = styled(motion.div)`
   background: rgba(35, 35, 54, 0.8);
@@ -94,18 +91,42 @@ const TestimonialCard = styled(motion.div)`
       opacity: 1;
     }
   }
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+
+    .flex.items-center.mb-6 {
+      margin-bottom: 1rem;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+    }
+
+    .text-primary {
+      font-size: 0.8rem;
+    }
+
+    .text-gray-400 {
+      font-size: 0.8rem;
+    }
+
+    p.flex-grow {
+      font-size: 0.9rem;
+    }
+  }
 `
 
-const AvatarContainer = styled.div`
-  position: relative;
-  width: 4rem;
-  height: 4rem;
-  border-radius: 9999px;
-  overflow: hidden;
-  margin-right: 1rem;
-  border: 2px solid #854ce6;
-  animation: ${glow} 2s infinite;
-`
+// const AvatarContainer = styled.div`
+//   position: relative;
+//   width: 4rem;
+//   height: 4rem;
+//   border-radius: 9999px;
+//   overflow: hidden;
+//   margin-right: 1rem;
+//   border: 2px solid #854ce6;
+//   animation: ${glow} 2s infinite;
+// `
 
 const QuoteIcon = styled.div`
   position: absolute;
@@ -185,14 +206,7 @@ const Testimonials = () => {
                   </svg>
                 </QuoteIcon>
                 <div className="flex items-center mb-6">
-                  <AvatarContainer>
-                    <Image
-                      src={testimonial.image}
-                      alt={testimonial.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </AvatarContainer>
+                 
                   <div>
                     <h3 className="text-xl font-semibold text-white">{testimonial.name}</h3>
                     <p className="text-primary text-sm font-medium">{testimonial.jobTitle}</p>
