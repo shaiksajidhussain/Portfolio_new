@@ -82,15 +82,14 @@ const Hero = () => {
              <p className="text-lg text-gray-400 mb-8 max-w-md">
               I am a motivated and versatile individual, always eager to take on new challenges. With a passion for learning I am dedicated to delivering high-quality results. With a positive attitude and a growth mindset, I am ready to make a meaningful contribution and achieve great things.
             </p>
-            <a href="/https://drive.google.com/file/d/1PDYOJQFdpIK-cECppfRe4GbF6aJwZ2mX/view">
-            
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-3 rounded-full text-lg font-medium hover:from-purple-700 hover:to-indigo-700 transition-colors"
-            >
-              Check Resume
-            </motion.button>
+            <a href="https://drive.google.com/file/d/1PDYOJQFdpIK-cECppfRe4GbF6aJwZ2mX/view" target='_blank' rel="noopener noreferrer">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-3 rounded-full text-lg font-medium hover:from-purple-700 hover:to-indigo-700 transition-colors"
+              >
+                Check Resume
+              </motion.button>
             </a>
           </motion.div>
 
@@ -125,8 +124,8 @@ const Hero = () => {
             <Image
               src="https://res.cloudinary.com/defsu5bfc/image/upload/v1748891782/Sanju_debxey.jpg"
               alt="Sajid Hussain"
-              width={384}
-              height={384}
+              width={400}
+              height={400}
               className="object-cover w-full h-full"
             />
           </motion.div>
@@ -150,13 +149,15 @@ const Hero = () => {
              <p className="text-lg text-gray-400 mb-8 max-w-md mx-auto">
               I am a motivated and versatile individual, always eager to take on new challenges. With a passion for learning I am dedicated to delivering high-quality results. With a positive attitude and a growth mindset, I am ready to make a meaningful contribution and achieve great things.
             </p>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-3 rounded-full text-lg font-medium hover:from-purple-700 hover:to-indigo-700 transition-colors"
-            >
-              Check Resume
-            </motion.button>
+            <a href="https://drive.google.com/file/d/1PDYOJQFdpIK-cECppfRe4GbF6aJwZ2mX/view" target='_blank' rel="noopener noreferrer">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-3 rounded-full text-lg font-medium hover:from-purple-700 hover:to-indigo-700 transition-colors"
+              >
+                Check Resume
+              </motion.button>
+              </a>
           </motion.div>
         </div>
       )}

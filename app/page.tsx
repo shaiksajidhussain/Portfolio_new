@@ -34,7 +34,7 @@ export default function Home() {
       className="min-h-screen"
     >
       <Navbar />
-      <div className='relative top-24'>
+      <div className='relative top-3'>
 
       <Hero />
       </div>
