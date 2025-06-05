@@ -32,12 +32,13 @@ interface ApiResponseItem {
 
 // Define the interface for the project data structure used in the component
 interface ProjectData {
+  _id: string; // Added _id for filtering and deletion in admin
   title: string;
   description: string;
   image: string;
   tags: string[];
   details: string;
-  type: string;
+  type: string; // Renamed from category to type to match filtering logic
   github?: string;
   webapp?: string;
   member?: Array<{ // Assuming member structure based on API response
@@ -49,11 +50,30 @@ interface ProjectData {
 }
 
 // Helper function to truncate description
-const truncateDescription = (text: string, limit: number) => {
+const truncateDescription = (text: string | undefined, limit: number) => {
   if (!text) return '';
   if (text.length <= limit) return text;
   return text.substring(0, limit) + '...';
 };
+
+// Skeleton Loader Component
+const ProjectSkeletonCard = () => (
+  <div className="bg-gray-800/50 backdrop-blur-lg rounded-xl overflow-hidden shadow-lg animate-pulse h-[350px] flex flex-col">
+    <div className="w-full h-48 bg-gray-700/50"></div>
+    <div className="p-6 flex-1 flex flex-col justify-between">
+      <div>
+        <div className="h-6 bg-gray-700/50 rounded w-3/4 mb-3"></div>
+        <div className="h-4 bg-gray-700/50 rounded w-full mb-4"></div>
+        <div className="h-4 bg-gray-700/50 rounded w-5/6 mb-4"></div>
+      </div>
+      <div className="flex flex-wrap gap-2 mt-auto">
+        <div className="h-6 bg-gray-700/50 rounded-full w-16"></div>
+        <div className="h-6 bg-gray-700/50 rounded-full w-20"></div>
+        <div className="h-6 bg-gray-700/50 rounded-full w-12"></div>
+      </div>
+    </div>
+  </div>
+);
 
 const Container = styled.div<{ $theme: string | null; $customBackground: string | null }>`
   display: flex;
@@ -189,6 +209,7 @@ const Projects = () => {
         const data: ApiResponseItem[] = await response.json(); // Type the incoming data as an array of ApiResponseItem
         // Map the API response structure to match the expected project structure
         const formattedProjects: ProjectData[] = data.map((item: ApiResponseItem) => ({
+          _id: item._id, // Include _id
           title: item.title,
           description: item.description,
           image: item.image,
@@ -221,45 +242,6 @@ const Projects = () => {
     ? projects
     : projects.filter(p => p.type === selectedFilter);
 
-  if (loading) {
-    return <Container 
-      id="projects" 
-      $theme={currentTheme}
-      $customBackground={customBackground}
-     
-    >
-      <Wrapper>
-        <div className="text-center text-white text-lg">Loading projects...</div>
-      </Wrapper>
-    </Container>;
-  }
-
-  if (error) {
-    return <Container 
-      id="projects" 
-      $theme={currentTheme}
-      $customBackground={customBackground}
-     
-    >
-      <Wrapper>
-        <div className="text-center text-red-500 text-lg">{error}</div>
-      </Wrapper>
-    </Container>;
-  }
-
-  if (filteredProjects.length === 0 && !loading && !error) {
-     return <Container 
-      id="projects" 
-      $theme={currentTheme}
-      $customBackground={customBackground}
-     
-    >
-      <Wrapper>
-        <div className="text-center text-gray-400 text-lg">No projects found for this filter.</div>
-      </Wrapper>
-    </Container>;
-  }
-
   return (
     <>
       <Container 
@@ -283,7 +265,7 @@ const Projects = () => {
             I have worked on a wide range of projects. From web apps to android apps. Here are some of my projects.
           </p>
         </motion.div>
-        {/* Filter Bar */}
+        {/* Filter Bar - Always visible */}
         <div className="flex flex-wrap justify-center gap-4 mb-8">
           {FILTERS.map(f => (
             <button
@@ -297,7 +279,19 @@ const Projects = () => {
           ))}
         </div>
 
-        {isMobile ? (
+        {/* Conditional Rendering based on Loading, Error, or Projects Found */}
+        {loading ? (
+            // Render skeleton loaders while loading
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {[...Array(9)].map((_, index) => (
+                    <ProjectSkeletonCard key={index} />
+                ))}
+            </div>
+        ) : error ? (
+            <div className="text-center text-red-500 text-lg">{error}</div>
+        ) : filteredProjects.length === 0 ? (
+            <div className="text-center text-gray-400 text-lg">No projects found for this filter.</div>
+        ) : isMobile ? (
           // Mobile horizontal scroll view with styled components
           <div className="w-full">
             <MobileProjectsScrollContainer>
@@ -431,7 +425,7 @@ const Projects = () => {
                     </span>
                   ))}
                 </div>
-              <p className="text-gray-300 mb-4">{filteredProjects[openIndex]?.details}</p>
+              <p className="text-gray-300 mb-4">{truncateDescription(filteredProjects[openIndex]?.description, 200)}</p>
               {/* You might want to add links to github/webapp here if they exist in the fetched data */}
               {(filteredProjects[openIndex]?.github || filteredProjects[openIndex]?.webapp) && (
                 <div className="flex gap-4 mt-4">
