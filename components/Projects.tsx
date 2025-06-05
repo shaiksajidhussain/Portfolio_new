@@ -1,11 +1,59 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { useTheme } from '../context/ThemeContext'
 import styled from 'styled-components'
 import { useMediaQuery } from 'react-responsive'
+import 'aos/dist/aos.css'
+import AOS from 'aos'
+
+// Define the interface for the structure of an item from the API response
+interface ApiResponseItem {
+  _id: string;
+  title: string;
+  description: string;
+  image: string;
+  tags?: string[]; // Making tags optional based on the sample, though it seems to be an array
+  category: string; // Assuming category is always a string
+  github?: string; // Optional
+  webapp?: string; // Optional
+  member?: Array<{ // Optional, defining a basic structure
+    name: string;
+    img?: string;
+    linkedin?: string;
+    github?: string;
+  }>;
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
+}
+
+// Define the interface for the project data structure used in the component
+interface ProjectData {
+  title: string;
+  description: string;
+  image: string;
+  tags: string[];
+  details: string;
+  type: string;
+  github?: string;
+  webapp?: string;
+  member?: Array<{ // Assuming member structure based on API response
+    name: string;
+    img?: string;
+    linkedin?: string;
+    github?: string;
+  }>;
+}
+
+// Helper function to truncate description
+const truncateDescription = (text: string, limit: number) => {
+  if (!text) return '';
+  if (text.length <= limit) return text;
+  return text.substring(0, limit) + '...';
+};
 
 const Container = styled.div<{ $theme: string | null; $customBackground: string | null }>`
   display: flex;
@@ -66,7 +114,7 @@ const ProjectCard = styled.div`
 const Modal = styled.div`
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 10000000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -110,12 +158,6 @@ const MobileProjectsScrollContainer = styled.div`
   padding: 0; /* Remove padding here, handle on parent */
 `
 
-const randomImages = [
-  'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
-  'https://images.unsplash.com/photo-1465101046530-73398c7f28ca',
-  'https://images.unsplash.com/photo-1519125323398-675f0ddb6308',
-]
-
 const FILTERS = [
   { label: "All", value: "all" },
   { label: "WEB APP'S", value: "web" },
@@ -123,97 +165,103 @@ const FILTERS = [
   { label: "Figma", value: "figma" },
 ];
 
-const projects = [
-  {
-    title: 'Milk Diary',
-    description: 'Milk Diary Management System | Arokya & Hatsun | Under Qubicgen, we developed an... ',
-    image: '/project1.jpg',
-    tags: ['React Js', 'Express Js', 'Postgres', 'Prisma', 'Devops', 'Vercel'],
-    details: '...',
-    type: 'web',
-  },
-  {
-    title: 'Frames',
-    description: 'Split my video into frames (thanks to Sheryians for showing how!) Built a webpage that loads these...',
-    image: '/project2.jpg',
-    tags: ['HTML5', 'Tailwind Css', 'Javascript'],
-    details: '...',
-    type: 'web',
-  },
-  {
-    title: 'Imagifine',
-    description: 'Imagine A cutting-edge SaaS application that harnesses the power of AI to transform text...',
-    image: '/project3.jpg',
-    tags: ['Next Js', 'Razorpay', 'Gemini', 'MongoDB', 'Jira', 'BitBucket', 'Tailwind CSS', 'Figma'],
-    details: '...',
-    type: 'figma',
-  },
-  {
-    title: 'E-commerce Platform',
-    description: 'A full-stack e-commerce platform built with Next.js, Node.js, and MongoDB.',
-    image: '/project1.jpg',
-    tags: ['Next.js', 'Node.js', 'MongoDB', 'Tailwind CSS'],
-    details: 'This is a detailed description of the E-commerce Platform project. It includes features, challenges, and more.',
-    type: 'web',
-  },
-  {
-    title: 'Portfolio Website',
-    description: 'A modern portfolio website with Three.js animations and interactive elements.',
-    image: '/project2.jpg',
-    tags: ['React', 'Three.js', 'Framer Motion', 'Tailwind CSS'],
-    details: 'This is a detailed description of the Portfolio Website project. It includes features, challenges, and more.',
-    type: 'web',
-  },
-  {
-    title: 'Task Management App',
-    description: 'A collaborative task management application with real-time updates.',
-    image: '/project3.jpg',
-    tags: ['React', 'Firebase', 'Material-UI', 'Redux'],
-    details: 'This is a detailed description of the Task Management App project. It includes features, challenges, and more.',
-    type: 'web',
-  },
-  {
-    title: 'Weather Dashboard',
-    description: 'A weather dashboard with live updates and beautiful UI.',
-    image: randomImages[0],
-    tags: ['React', 'API', 'Styled Components'],
-    details: 'This is a detailed description of the Weather Dashboard project. It includes features, challenges, and more.',
-    type: 'web',
-  },
-  {
-    title: 'Blog Platform',
-    description: 'A blogging platform with markdown support and user authentication.',
-    image: randomImages[1],
-    tags: ['Next.js', 'MongoDB', 'Auth'],
-    details: 'This is a detailed description of the Blog Platform project. It includes features, challenges, and more.',
-    type: 'web',
-  },
-  {
-    title: 'Finance Tracker',
-    description: 'A finance tracker app to manage expenses and income.',
-    image: randomImages[2],
-    tags: ['React', 'Redux', 'Chart.js'],
-    details: 'This is a detailed description of the Finance Tracker project. It includes features, challenges, and more.',
-    type: 'web',
-  },
-]
-
 const Projects = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   const [selectedFilter, setSelectedFilter] = useState('all')
   const { currentTheme, customBackground } = useTheme()
   const isMobile = useMediaQuery({ maxWidth: 768 });
+  const [projects, setProjects] = useState<ProjectData[]>([]); // Type the state with the new interface
+  const [loading, setLoading] = useState(true); // State to indicate loading
+  const [error, setError] = useState<string | null>(null); // State to hold error message
+
+  useEffect(() => {
+    AOS.init({ once: true });
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch('https://portfolio-backend-six-ruby.vercel.app/api/projects');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data: ApiResponseItem[] = await response.json(); // Type the incoming data as an array of ApiResponseItem
+        // Map the API response structure to match the expected project structure
+        const formattedProjects: ProjectData[] = data.map((item: ApiResponseItem) => ({
+          title: item.title,
+          description: item.description,
+          image: item.image,
+          tags: item.tags || [], // Ensure tags is an array, default to empty if missing
+          details: item.description, // Using description for details for now, adjust if API provides separate details
+          type: item.category === 'webapp' ? 'web' : (item.category ? item.category.toLowerCase() : 'other'), // Map category to type, handle missing category
+          github: item.github,
+          webapp: item.webapp,
+          member: item.member || []
+        }));
+        setProjects(formattedProjects);
+      } catch (err: unknown) {
+        console.error("Error fetching projects:", err);
+        if (err instanceof Error) {
+          setError(`Failed to load projects: ${err.message}`);
+        } else {
+          setError('Failed to load projects: An unknown error occurred.');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+
+  }, []);
 
   // Filter logic
   const filteredProjects = selectedFilter === 'all'
     ? projects
-    : projects.filter(p => p.type === selectedFilter)
+    : projects.filter(p => p.type === selectedFilter);
+
+  if (loading) {
+    return <Container 
+      id="projects" 
+      $theme={currentTheme}
+      $customBackground={customBackground}
+     
+    >
+      <Wrapper>
+        <div className="text-center text-white text-lg">Loading projects...</div>
+      </Wrapper>
+    </Container>;
+  }
+
+  if (error) {
+    return <Container 
+      id="projects" 
+      $theme={currentTheme}
+      $customBackground={customBackground}
+     
+    >
+      <Wrapper>
+        <div className="text-center text-red-500 text-lg">{error}</div>
+      </Wrapper>
+    </Container>;
+  }
+
+  if (filteredProjects.length === 0 && !loading && !error) {
+     return <Container 
+      id="projects" 
+      $theme={currentTheme}
+      $customBackground={customBackground}
+     
+    >
+      <Wrapper>
+        <div className="text-center text-gray-400 text-lg">No projects found for this filter.</div>
+      </Wrapper>
+    </Container>;
+  }
 
   return (
     <Container 
       id="projects" 
       $theme={currentTheme}
       $customBackground={customBackground}
+     
     >
       <Wrapper>
         <motion.div
@@ -222,6 +270,7 @@ const Projects = () => {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
           className="text-center mb-6"
+          
         >
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
             Projects
@@ -256,11 +305,13 @@ const Projects = () => {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
                   onClick={() => setOpenIndex(index)}
+                  data-aos="zoom-in-right"
+                  data-aos-duration="3000"
                 >
                   <ProjectCard>
                     <div className="relative h-36">
                       <Image
-                        src={project.image && project.image.trim() !== '' ? project.image : randomImages[Math.floor(Math.random() * randomImages.length)]}
+                        src={project.image && project.image.trim() !== '' ? project.image : 'https://via.placeholder.com/400x300.png?text=No+Image'}
                         alt={project.title}
                         fill
                         className="object-cover"
@@ -271,7 +322,7 @@ const Projects = () => {
                         {project.title}
                       </h3>
                       <p className="text-gray-300 text-sm mb-3">
-                        {project.description}
+                        {truncateDescription(project.description, 200)}
                       </p>
                       <div className="flex flex-wrap gap-1">
                         {project.tags.map((tag) => (
@@ -301,11 +352,13 @@ const Projects = () => {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
                 onClick={() => setOpenIndex(index)}
+                data-aos="zoom-in-right"
+                data-aos-duration="3000"
               >
                 <ProjectCard>
                   <div className="relative h-48">
                     <Image
-                      src={project.image && project.image.trim() !== '' ? project.image : randomImages[Math.floor(Math.random() * randomImages.length)]}
+                      src={project.image && project.image.trim() !== '' ? project.image : 'https://via.placeholder.com/400x300.png?text=No+Image'}
                       alt={project.title}
                       fill
                       className="object-cover"
@@ -316,7 +369,7 @@ const Projects = () => {
                       {project.title}
                     </h3>
                     <p className="text-gray-300 mb-4">
-                      {project.description}
+                      {truncateDescription(project.description, 200)}
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {project.tags.map((tag) => (
@@ -337,9 +390,10 @@ const Projects = () => {
         )}
 
         {/* Modal */}
-        {openIndex !== null && (
+        {openIndex !== null && filteredProjects[openIndex] && (
           <Modal>
-            <motion.div
+            <motion.div 
+           
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
@@ -354,15 +408,15 @@ const Projects = () => {
                 </button>
                 <div className="w-full h-48 mb-4 rounded-lg overflow-hidden relative">
                   <Image
-                    src={projects[openIndex].image && projects[openIndex].image.trim() !== '' ? projects[openIndex].image : randomImages[Math.floor(Math.random() * randomImages.length)]}
-                    alt={projects[openIndex].title}
+                    src={filteredProjects[openIndex]?.image && filteredProjects[openIndex]?.image.trim() !== '' ? filteredProjects[openIndex]?.image : 'https://via.placeholder.com/400x300.png?text=No+Image'} // Placeholder if image is missing
+                    alt={filteredProjects[openIndex]?.title || 'Project image'}
                     fill
                     className="object-cover"
                   />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-2">{projects[openIndex].title}</h3>
+                <h3 className="text-2xl font-bold text-white mb-2">{filteredProjects[openIndex]?.title}</h3>
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {projects[openIndex].tags.map((tag) => (
+                  {filteredProjects[openIndex]?.tags.map((tag) => (
                     <span
                       key={tag}
                       className="px-3 py-1 bg-[rgba(133,76,230,0.2)] text-[#854ce6] rounded-full text-sm"
@@ -371,9 +425,34 @@ const Projects = () => {
                     </span>
                   ))}
                 </div>
-                <p className="text-gray-300 mb-4">{projects[openIndex].details}</p>
+                <p className="text-gray-300 mb-4">{filteredProjects[openIndex]?.details}</p>
+                {/* You might want to add links to github/webapp here if they exist in the fetched data */}
+                {(filteredProjects[openIndex]?.github || filteredProjects[openIndex]?.webapp) && (
+                  <div className="flex gap-4 mt-4">
+                    {filteredProjects[openIndex]?.github && (
+                      <a 
+                        href={filteredProjects[openIndex]?.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-6 py-2 bg-gray-700 text-white rounded-lg font-semibold hover:bg-gray-600 transition-colors"
+                      >
+                        GitHub
+                      </a>
+                    )}
+                    {filteredProjects[openIndex]?.webapp && (
+                      <a
+                        href={filteredProjects[openIndex]?.webapp}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-6 py-2 bg-gradient-to-r from-[#854ce6] to-[#5edfff] text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-[rgba(133,76,230,0.3)] transition-all duration-300"
+                      >
+                        View App
+                      </a>
+                    )}
+                  </div>
+                )}
                 <button
-                  className="mt-2 px-6 py-2 bg-gradient-to-r from-[#854ce6] to-[#5edfff] text-white rounded-lg 
+                  className="mt-6 px-6 py-2 bg-gradient-to-r from-[#854ce6] to-[#5edfff] text-white rounded-lg 
                            font-semibold hover:shadow-lg hover:shadow-[rgba(133,76,230,0.3)] transition-all duration-300"
                   onClick={() => setOpenIndex(null)}
                 >
