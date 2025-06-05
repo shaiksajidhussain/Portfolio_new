@@ -132,6 +132,7 @@ const Education = () => {
       id="education" 
       $theme={currentTheme}
       $customBackground={customBackground}
+      
     >
       <Wrapper>
         <motion.div
@@ -140,6 +141,7 @@ const Education = () => {
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
           className="text-center mb-8"
+          data-aos="flip-left" data-aos-duration="3000"
         >
           <h2 className="text-4xl font-bold text-primary mb-2">Education</h2>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">

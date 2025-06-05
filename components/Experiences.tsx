@@ -372,9 +372,9 @@ const Experiences = () => {
         <SectionTitle>Experience</SectionTitle>
         
         {/* Desktop Timeline View */}
-        <TimelineContainer className="hidden md:block">
+        <TimelineContainer className="hidden md:block" data-aos="zoom-in" data-aos-duration="3000">
           {experiences.map((exp, idx) => (
-            <ExperienceCard key={idx} data-aos="zoom-in" data-aos-duration="3000">
+            <ExperienceCard key={idx} >
               
               <CompanyName>{exp.company}</CompanyName>
               <Role>{exp.role}</Role>
