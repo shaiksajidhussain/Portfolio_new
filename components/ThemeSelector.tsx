@@ -9,6 +9,7 @@ interface ThemeSelectorProps {
   isOpen: boolean;
   onClose: () => void;
   onThemeSelect: (theme: string) => void;
+  onCustomBackground: (background: string | null) => void;
 }
 
 const gradients = [
@@ -163,6 +164,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
   isOpen,
   onClose,
   onThemeSelect,
+  onCustomBackground,
 }) => {
   const { currentTheme } = useTheme();
 
@@ -193,7 +195,10 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                 className={`h-32 rounded-lg overflow-hidden relative group ${
                   currentTheme === gradient.value ? 'ring-2 ring-purple-500 ring-offset-2 ring-offset-[#1E1E2D]' : ''
                 }`}
-                onClick={() => onThemeSelect(gradient.value)}
+                onClick={() => {
+                  onThemeSelect(gradient.value);
+                  onCustomBackground(null); // Reset custom background when selecting a theme
+                }}
                 style={{ background: gradient.value }}
               >
                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300" />

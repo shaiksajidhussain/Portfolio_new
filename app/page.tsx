@@ -13,7 +13,7 @@ import Education from '../components/Education'
 export default function Home() {
   useEffect(() => {
     const lenis = new Lenis({
-      smooth: true,
+      smoothWheel: true,
       lerp: 0.1,
     })
 
