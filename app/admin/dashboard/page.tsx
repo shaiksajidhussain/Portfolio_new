@@ -1,8 +1,9 @@
 'use client'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import ProjectForm from './ProjectForm';
 import config from '@/components/config';
+import Image from 'next/image';
 
 interface Member {
     name: string;
@@ -12,11 +13,11 @@ interface Member {
 }
 
 interface Project {
-    _id: string;
+    _id?: string;
     title: string;
     description: string;
     image?: string;
-    tags?: string[];
+    tags: string[];
     category?: string;
     github?: string;
     webapp?: string;
@@ -43,18 +44,18 @@ const AdminDashboard = () => {
     const [deletingCarouselId, setDeletingCarouselId] = useState<string | null>(null);
     const router = useRouter();
 
-    useEffect(() => {
-        fetchProjects();
-        fetchCarouselItems();
-        checkAuth();
-    }, []);
-
-    const checkAuth = () => {
+    const checkAuth = useCallback(() => {
         const token = localStorage.getItem('adminToken');
         if (!token) {
             router.push('/admin/login');
         }
-    };
+    }, [router]);
+
+    useEffect(() => {
+        fetchProjects();
+        fetchCarouselItems();
+        checkAuth();
+    }, [checkAuth]);
 
     const fetchProjects = async () => {
         setIsLoadingProjects(true);
@@ -83,6 +84,8 @@ const AdminDashboard = () => {
     };
 
     const handleDelete = async (id: string) => {
+        if (!id) return;
+        
         if (window.confirm('Are you sure you want to delete this project?')) {
             setDeletingProjectId(id);
             try {
@@ -192,19 +195,25 @@ const AdminDashboard = () => {
                                 >
                                     <div className="mb-4">
                                         <h4 className="text-white font-semibold mb-2">Carousel Image:</h4>
-                                        <img 
-                                            src={item.imageUrl} 
-                                            alt="Carousel item" 
-                                            className="w-full h-48 object-cover rounded-lg"
-                                        />
+                                        <div className="relative w-full h-48">
+                                            <Image 
+                                                src={item.imageUrl} 
+                                                alt="Carousel item" 
+                                                fill
+                                                className="object-cover rounded-lg"
+                                            />
+                                        </div>
                                     </div>
                                     <div className="mb-4">
                                         <h4 className="text-white font-semibold mb-2">Profile Picture:</h4>
-                                        <img 
-                                            src={item.profilePic} 
-                                            alt="Profile picture" 
-                                            className="w-32 h-32 object-cover rounded-full mx-auto"
-                                        />
+                                        <div className="relative w-32 h-32 mx-auto">
+                                            <Image 
+                                                src={item.profilePic} 
+                                                alt="Profile picture" 
+                                                fill
+                                                className="object-cover rounded-full"
+                                            />
+                                        </div>
                                     </div>
                                     <div className="flex gap-3">
                                         <button 
@@ -249,7 +258,7 @@ const AdminDashboard = () => {
                         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
                             <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto transform transition-all duration-500 animate-slide-up">
                                 <ProjectForm 
-                                    project={editingProject}
+                                    project={editingProject || undefined}
                                     onClose={() => {
                                         setShowForm(false);
                                         setEditingProject(null);
@@ -270,7 +279,7 @@ const AdminDashboard = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {projects.map((project, index) => (
                                 <div 
-                                    key={project._id} 
+                                    key={project._id || index} 
                                     className="bg-white/10 backdrop-blur-lg rounded-xl p-6 shadow-xl transform transition-all duration-500 hover:scale-[1.02] animate-fade-in"
                                     style={{ animationDelay: `${index * 100}ms` }}
                                 >
@@ -301,9 +310,9 @@ const AdminDashboard = () => {
                                             Edit
                                         </button>
                                         <button 
-                                            onClick={() => handleDelete(project._id)}
+                                            onClick={() => project._id && handleDelete(project._id)}
                                             className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-red-500/25 transform transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
-                                            disabled={deletingProjectId === project._id}
+                                            disabled={deletingProjectId === project._id || !project._id}
                                         >
                                             {deletingProjectId === project._id ? 'Deleting...' : 'Delete'}
                                         </button>
