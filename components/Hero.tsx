@@ -142,7 +142,7 @@ const Hero = () => {
             <h2 className="text-6xl font-bold mb-2">
               <GradientName>Sajid Hussain</GradientName>
             </h2>
-            <p className="text-sm text-gray-400 mt-1 mb-4">Page Views: 285</p>
+            <p className="text-sm text-gray-400 mt-1 mb-4">Page Views: 2185</p>
             <div className="text-3xl text-gray-300 mb-4">
                I am a <span className="text-purple-500"> <TypewriterEffect texts={roles} /></span>
             </div>
