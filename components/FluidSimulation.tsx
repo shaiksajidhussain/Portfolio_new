@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Renderer, Camera, RenderTarget, Geometry, Program, Mesh, Color, Vec2, Box, NormalProgram, Post, Texture } from 'ogl'
 
 const fragment = /* glsl */ `
@@ -219,6 +219,26 @@ interface OGLRenderingContext extends WebGLRenderingContext {
 
 const FluidSimulation = () => {
   const containerRef = useRef<HTMLDivElement>(null)
+  const [carouselImage, setCarouselImage] = useState<string | null>(null)
+  const defaultImage = 'https://res.cloudinary.com/defsu5bfc/image/upload/v1748929673/canvabg2_page-0001_kbktbi.jpg'
+
+  useEffect(() => {
+    // Fetch carousel images
+    const fetchCarouselImages = async () => {
+      try {
+        const response = await fetch('https://portfolio-backend-six-ruby.vercel.app/api/carausel')
+        const data = await response.json()
+        if (data && data.length > 0) {
+          // Get the first image URL from the carousel items
+          setCarouselImage(data[0].imageUrl)
+        }
+      } catch (error) {
+        console.error('Error fetching carousel images:', error)
+      }
+    }
+
+    fetchCarouselImages()
+  }, [])
 
   useEffect(() => {
     const container = containerRef.current
@@ -244,7 +264,12 @@ const FluidSimulation = () => {
       // Start rendering once the image is loaded
       requestAnimationFrame(update)
     }
-    img.src = 'https://res.cloudinary.com/defsu5bfc/image/upload/v1748929673/canvabg2_page-0001_kbktbi.jpg'
+    img.onerror = () => {
+      // If the carousel image fails to load, use the default image
+      img.src = defaultImage
+    }
+    // Use carousel image if available, otherwise use default
+    img.src = carouselImage || defaultImage
 
     function resize() {
       renderer.setSize(window.innerWidth, window.innerHeight)
@@ -752,7 +777,7 @@ const FluidSimulation = () => {
       container.removeChild(gl.canvas)
       img.remove()
     }
-  }, [])
+  }, [carouselImage])
 
   return <div ref={containerRef} className="absolute inset-0 z-0" />
 }

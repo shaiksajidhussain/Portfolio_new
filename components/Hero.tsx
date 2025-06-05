@@ -27,6 +27,8 @@ const Hero = () => {
   const hasIncrementedRef = useRef(false); // Ref to prevent multiple increments on mount
   const [loadingViews, setLoadingViews] = useState(true); // State for loading views
   const [viewError, setViewError] = useState<string | null>(null); // State for view error
+  const [profilePic, setProfilePic] = useState<string>('https://res.cloudinary.com/defsu5bfc/image/upload/v1748891782/Sanju_debxey.jpg');
+  const [loadingProfilePic, setLoadingProfilePic] = useState(true);
 
   useEffect(() => {
     setMounted(true);
@@ -38,6 +40,26 @@ const Hero = () => {
     setWindowWidth(window.innerWidth);
 
     window.addEventListener('resize', handleResize);
+
+    // Fetch profile picture from carousel API
+    const fetchProfilePic = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/carausel`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (data && data.length > 0 && data[0].profilePic) {
+          setProfilePic(data[0].profilePic);
+        }
+      } catch (error) {
+        console.error('Error fetching profile picture:', error);
+      } finally {
+        setLoadingProfilePic(false);
+      }
+    };
+
+    fetchProfilePic();
 
     // --- View Count Logic ---
     const fetchViewCount = async () => {
@@ -171,13 +193,17 @@ const Hero = () => {
             className="md:w-1/2 flex justify-center md:justify-end mt-8 md:mt-0"
           >
             <div className="w-64 h-64 mx-auto rounded-full overflow-hidden border-4 border-purple-600 md:w-96 md:h-96 md:mx-0">
-              <Image
-                src="https://res.cloudinary.com/defsu5bfc/image/upload/v1748891782/Sanju_debxey.jpg"
-                alt="Sajid Hussain"
-                width={384}
-                height={384}
-                className="object-cover w-full h-full"
-              />
+              {loadingProfilePic ? (
+                <div className="w-full h-full bg-gray-700 animate-pulse" />
+              ) : (
+                <Image
+                  src={profilePic}
+                  alt="Sajid Hussain"
+                  width={384}
+                  height={384}
+                  className="object-cover w-full h-full"
+                />
+              )}
             </div>
           </motion.div>
         </div>
@@ -191,13 +217,17 @@ const Hero = () => {
             transition={{ duration: 0.8 }}
             className="w-64 h-64 mx-auto rounded-full overflow-hidden border-4 border-purple-600 mb-8"
           >
-            <Image
-              src="https://res.cloudinary.com/defsu5bfc/image/upload/v1748891782/Sanju_debxey.jpg"
-              alt="Sajid Hussain"
-              width={400}
-              height={400}
-              className="object-cover w-full h-full"
-            />
+            {loadingProfilePic ? (
+              <div className="w-full h-full bg-gray-700 animate-pulse" />
+            ) : (
+              <Image
+                src={profilePic}
+                alt="Sajid Hussain"
+                width={400}
+                height={400}
+                className="object-cover w-full h-full"
+              />
+            )}
           </motion.div>
           {/* Text Content */}
           <motion.div
