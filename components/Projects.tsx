@@ -132,6 +132,10 @@ const ModalContent = styled.div`
   position: relative;
   box-shadow: 0 0 20px rgba(133,76,230,0.2);
   border: 1px solid rgba(133,76,230,0.4);
+  /* Adjusted width for larger modal */
+  max-width: 600px; /* Example width, adjust as needed */
+  max-height: 90vh; /* Limit height and enable scrolling if content overflows */
+  overflow-y: auto;
 `
 
 const MobileProjectCardContainer = styled(motion.div)`
@@ -257,11 +261,11 @@ const Projects = () => {
   }
 
   return (
-    <Container 
-      id="projects" 
-      $theme={currentTheme}
-      $customBackground={customBackground}
-     
+    <>
+      <Container 
+        id="projects" 
+        $theme={currentTheme}
+        $customBackground={customBackground}
     >
       <Wrapper>
         <motion.div
@@ -305,13 +309,13 @@ const Projects = () => {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
                   onClick={() => setOpenIndex(index)}
-                  data-aos="zoom-in-right"
-                  data-aos-duration="3000"
+                    data-aos="zoom-in-right"
+                    data-aos-duration="3000"
                 >
                   <ProjectCard>
                     <div className="relative h-36">
                       <Image
-                        src={project.image && project.image.trim() !== '' ? project.image : 'https://via.placeholder.com/400x300.png?text=No+Image'}
+                          src={project.image && project.image.trim() !== '' ? project.image : 'https://via.placeholder.com/400x300.png?text=No+Image'}
                         alt={project.title}
                         fill
                         className="object-cover"
@@ -322,7 +326,7 @@ const Projects = () => {
                         {project.title}
                       </h3>
                       <p className="text-gray-300 text-sm mb-3">
-                        {truncateDescription(project.description, 200)}
+                          {truncateDescription(project.description, 200)}
                       </p>
                       <div className="flex flex-wrap gap-1">
                         {project.tags.map((tag) => (
@@ -352,13 +356,13 @@ const Projects = () => {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
                 onClick={() => setOpenIndex(index)}
-                data-aos="zoom-in-right"
-                data-aos-duration="3000"
+                  data-aos="zoom-in-right"
+                  data-aos-duration="3000"
               >
                 <ProjectCard>
                   <div className="relative h-48">
                     <Image
-                      src={project.image && project.image.trim() !== '' ? project.image : 'https://via.placeholder.com/400x300.png?text=No+Image'}
+                        src={project.image && project.image.trim() !== '' ? project.image : 'https://via.placeholder.com/400x300.png?text=No+Image'}
                       alt={project.title}
                       fill
                       className="object-cover"
@@ -369,7 +373,7 @@ const Projects = () => {
                       {project.title}
                     </h3>
                     <p className="text-gray-300 mb-4">
-                      {truncateDescription(project.description, 200)}
+                        {truncateDescription(project.description, 200)}
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {project.tags.map((tag) => (
@@ -388,12 +392,14 @@ const Projects = () => {
             ))}
           </div>
         )}
+        </Wrapper>
+      </Container>
 
-        {/* Modal */}
-        {openIndex !== null && filteredProjects[openIndex] && (
+      {/* Modal rendered outside the Container */}
+      {openIndex !== null && filteredProjects[openIndex] && (
           <Modal>
-            <motion.div 
-           
+            <motion.div
+         
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
@@ -408,15 +414,15 @@ const Projects = () => {
                 </button>
                 <div className="w-full h-48 mb-4 rounded-lg overflow-hidden relative">
                   <Image
-                    src={filteredProjects[openIndex]?.image && filteredProjects[openIndex]?.image.trim() !== '' ? filteredProjects[openIndex]?.image : 'https://via.placeholder.com/400x300.png?text=No+Image'} // Placeholder if image is missing
-                    alt={filteredProjects[openIndex]?.title || 'Project image'}
+                  src={filteredProjects[openIndex]?.image && filteredProjects[openIndex]?.image.trim() !== '' ? filteredProjects[openIndex]?.image : 'https://via.placeholder.com/400x300.png?text=No+Image'} // Placeholder if image is missing
+                  alt={filteredProjects[openIndex]?.title || 'Project image'}
                     fill
                     className="object-cover"
                   />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-2">{filteredProjects[openIndex]?.title}</h3>
+              <h3 className="text-2xl font-bold text-white mb-2">{filteredProjects[openIndex]?.title}</h3>
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {filteredProjects[openIndex]?.tags.map((tag) => (
+                {filteredProjects[openIndex]?.tags.map((tag) => (
                     <span
                       key={tag}
                       className="px-3 py-1 bg-[rgba(133,76,230,0.2)] text-[#854ce6] rounded-full text-sm"
@@ -425,34 +431,34 @@ const Projects = () => {
                     </span>
                   ))}
                 </div>
-                <p className="text-gray-300 mb-4">{filteredProjects[openIndex]?.details}</p>
-                {/* You might want to add links to github/webapp here if they exist in the fetched data */}
-                {(filteredProjects[openIndex]?.github || filteredProjects[openIndex]?.webapp) && (
-                  <div className="flex gap-4 mt-4">
-                    {filteredProjects[openIndex]?.github && (
-                      <a 
-                        href={filteredProjects[openIndex]?.github}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-6 py-2 bg-gray-700 text-white rounded-lg font-semibold hover:bg-gray-600 transition-colors"
-                      >
-                        GitHub
-                      </a>
-                    )}
-                    {filteredProjects[openIndex]?.webapp && (
-                      <a
-                        href={filteredProjects[openIndex]?.webapp}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-6 py-2 bg-gradient-to-r from-[#854ce6] to-[#5edfff] text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-[rgba(133,76,230,0.3)] transition-all duration-300"
-                      >
-                        View App
-                      </a>
-                    )}
-                  </div>
-                )}
+              <p className="text-gray-300 mb-4">{filteredProjects[openIndex]?.details}</p>
+              {/* You might want to add links to github/webapp here if they exist in the fetched data */}
+              {(filteredProjects[openIndex]?.github || filteredProjects[openIndex]?.webapp) && (
+                <div className="flex gap-4 mt-4">
+                  {filteredProjects[openIndex]?.github && (
+                    <a 
+                      href={filteredProjects[openIndex]?.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-6 py-2 bg-gray-700 text-white rounded-lg font-semibold hover:bg-gray-600 transition-colors"
+                    >
+                      GitHub
+                    </a>
+                  )}
+                  {filteredProjects[openIndex]?.webapp && (
+                    <a
+                      href={filteredProjects[openIndex]?.webapp}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-6 py-2 bg-gradient-to-r from-[#854ce6] to-[#5edfff] text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-[rgba(133,76,230,0.3)] transition-all duration-300"
+                    >
+                      View App
+                    </a>
+                  )}
+                </div>
+              )}
                 <button
-                  className="mt-6 px-6 py-2 bg-gradient-to-r from-[#854ce6] to-[#5edfff] text-white rounded-lg 
+                className="mt-6 px-6 py-2 bg-gradient-to-r from-[#854ce6] to-[#5edfff] text-white rounded-lg 
                            font-semibold hover:shadow-lg hover:shadow-[rgba(133,76,230,0.3)] transition-all duration-300"
                   onClick={() => setOpenIndex(null)}
                 >
@@ -462,8 +468,7 @@ const Projects = () => {
             </motion.div>
           </Modal>
         )}
-      </Wrapper>
-    </Container>
+    </>
   )
 }
 

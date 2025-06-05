@@ -5,7 +5,10 @@ import Image from 'next/image'
 import TypewriterEffect from './TypewriterEffect'
 import FluidSimulation from './FluidSimulation'
 import styled from 'styled-components'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+
+// const API_URL = 'http://localhost:5000'; // Removed as we're using the Vercel URL
+const API_URL = 'https://portfolio-backend-six-ruby.vercel.app';
 
 const GradientName = styled.span`
   background: linear-gradient(90deg, #FF3CAC 0%, #784BA0 50%, #2B86C5 100%);
@@ -20,6 +23,10 @@ const Hero = () => {
   const roles = ['Backend Developer', 'Frontend Developer', 'UI/UX Designer', 'Programmer']
   const [windowWidth, setWindowWidth] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const [viewCount, setViewCount] = useState(0); // State for view count
+  const hasIncrementedRef = useRef(false); // Ref to prevent multiple increments on mount
+  const [loadingViews, setLoadingViews] = useState(true); // State for loading views
+  const [viewError, setViewError] = useState<string | null>(null); // State for view error
 
   useEffect(() => {
     setMounted(true);
@@ -32,8 +39,66 @@ const Hero = () => {
 
     window.addEventListener('resize', handleResize);
 
+    // --- View Count Logic ---
+    const fetchViewCount = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/views/hero`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setViewCount(data.count);
+      } catch (error: unknown) {
+        console.error('Error fetching view count:', error);
+         if (error instanceof Error) {
+          setViewError(`Failed to load views: ${error.message}`);
+        } else {
+          setViewError('Failed to load views: An unknown error occurred.');
+        }
+      } finally {
+        setLoadingViews(false);
+      }
+    };
+
+    const incrementViewCount = async () => {
+      if (!hasIncrementedRef.current) {
+        try {
+          const response = await fetch(`${API_URL}/api/views/hero`, {
+            method: 'POST'
+          });
+           if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();
+          setViewCount(data.count);
+          hasIncrementedRef.current = true;
+        } catch (error: unknown) {
+          console.error('Error incrementing view count:', error);
+           if (error instanceof Error) {
+            setViewError(`Failed to increment views: ${error.message}`);
+          } else {
+            setViewError('Failed to increment views: An unknown error occurred.');
+          }
+        }
+      }
+    };
+
+    fetchViewCount();
+    incrementViewCount(); // Increment on initial load
+
+    // Optional: Increment view count when the tab becomes visible again
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        incrementViewCount();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    // --- End View Count Logic ---
+
     return () => {
       window.removeEventListener('resize', handleResize);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
@@ -76,6 +141,11 @@ const Hero = () => {
             <h1 className="text-6xl md:text-8xl font-bold mb-2">
               Hi, I am <br className="block md:hidden"/><GradientName>Sajid Hussain</GradientName>
             </h1>
+            {/* Display view count */} 
+            {!loadingViews && viewError && <p className="text-sm text-red-500 mt-1 mb-4">{viewError}</p>}
+            {!loadingViews && !viewError && viewCount > 0 && (
+              <p className="text-sm text-gray-400 mt-1 mb-4">Page Views: {viewCount}</p>
+            )}
             <div className="text-3xl md:text-4xl text-gray-300 mb-4">
                I am a <span className="text-purple-500"> <TypewriterEffect texts={roles} /></span>
             </div>
@@ -83,13 +153,13 @@ const Hero = () => {
               I am a motivated and versatile individual, always eager to take on new challenges. With a passion for learning I am dedicated to delivering high-quality results. With a positive attitude and a growth mindset, I am ready to make a meaningful contribution and achieve great things.
             </p>
             <a href="https://drive.google.com/file/d/1PDYOJQFdpIK-cECppfRe4GbF6aJwZ2mX/view" target='_blank' rel="noopener noreferrer">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-3 rounded-full text-lg font-medium hover:from-purple-700 hover:to-indigo-700 transition-colors"
-              >
-                Check Resume
-              </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-3 rounded-full text-lg font-medium hover:from-purple-700 hover:to-indigo-700 transition-colors"
+            >
+              Check Resume
+            </motion.button>
             </a>
           </motion.div>
 
@@ -142,7 +212,11 @@ const Hero = () => {
             <h2 className="text-6xl font-bold mb-2">
               <GradientName>Sajid Hussain</GradientName>
             </h2>
-            <p className="text-sm text-gray-400 mt-1 mb-4">Page Views: 2185</p>
+            {/* Display view count for small screens */} 
+            {!loadingViews && viewError && <p className="text-sm text-red-500 mt-1 mb-4">{viewError}</p>}
+            {!loadingViews && !viewError && viewCount > 0 && (
+              <p className="text-sm text-gray-400 mt-1 mb-4">Page Views: {viewCount}</p>
+            )}
             <div className="text-3xl text-gray-300 mb-4">
                I am a <span className="text-purple-500"> <TypewriterEffect texts={roles} /></span>
             </div>
@@ -150,13 +224,13 @@ const Hero = () => {
               I am a motivated and versatile individual, always eager to take on new challenges. With a passion for learning I am dedicated to delivering high-quality results. With a positive attitude and a growth mindset, I am ready to make a meaningful contribution and achieve great things.
             </p>
             <a href="https://drive.google.com/file/d/1PDYOJQFdpIK-cECppfRe4GbF6aJwZ2mX/view" target='_blank' rel="noopener noreferrer">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-3 rounded-full text-lg font-medium hover:from-purple-700 hover:to-indigo-700 transition-colors"
-              >
-                Check Resume
-              </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-3 rounded-full text-lg font-medium hover:from-purple-700 hover:to-indigo-700 transition-colors"
+            >
+              Check Resume
+            </motion.button>
               </a>
           </motion.div>
         </div>
