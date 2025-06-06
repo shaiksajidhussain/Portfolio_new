@@ -9,7 +9,7 @@ import 'aos/dist/aos.css'
 import AOS from 'aos'
 import { useTheme } from '../context/ThemeContext'
 
-const Container = styled.div<{ $theme: string | null; $customBackground: string | null }>`
+const Container = styled.div<{ $theme: string | null; $customBackground: string | null; $isThemesEnabled: boolean }>`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -23,7 +23,16 @@ const Container = styled.div<{ $theme: string | null; $customBackground: string 
   right: 50%;
   margin-left: -50vw;
   margin-right: -50vw;
-  background: ${props => props.$customBackground ? `url(${props.$customBackground}) center/cover no-repeat` : props.$theme || '#191924'};
+  background: ${props => {
+    if (props.$customBackground) {
+      return `url(${props.$customBackground}) center/cover no-repeat`;
+    }
+    if (props.$isThemesEnabled) {
+      return props.$theme || '#191924';
+    }
+    return 'transparent';
+  }};
+  transition: background 0.3s ease;
 `
 
 const Wrapper = styled.div`
@@ -121,7 +130,7 @@ const GlowingCard = styled.div`
 `
 
 const Education = () => {
-  const { currentTheme, customBackground } = useTheme()
+  const { currentTheme, customBackground, isThemesEnabled } = useTheme()
 
   useEffect(() => {
     AOS.init({ once: true })
@@ -132,7 +141,7 @@ const Education = () => {
       id="education" 
       $theme={currentTheme}
       $customBackground={customBackground}
-      
+      $isThemesEnabled={isThemesEnabled}
     >
       <Wrapper>
         <motion.div

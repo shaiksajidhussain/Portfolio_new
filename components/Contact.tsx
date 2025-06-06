@@ -8,7 +8,7 @@ import styled from 'styled-components'
 const API_URL = 'https://portfolio-backend-six-ruby.vercel.app';
 // const API_URL = 'http://localhost:8089';
 
-const Container = styled.div<{ $theme: string | null; $customBackground: string | null }>`
+const Container = styled.div<{ $theme: string | null; $customBackground: string | null; $isThemesEnabled: boolean }>`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -22,7 +22,16 @@ const Container = styled.div<{ $theme: string | null; $customBackground: string 
   right: 50%;
   margin-left: -50vw;
   margin-right: -50vw;
-  background: ${props => props.$customBackground ? `url(${props.$customBackground}) center/cover no-repeat` : props.$theme || '#191924'};
+  background: ${props => {
+    if (props.$customBackground) {
+      return `url(${props.$customBackground}) center/cover no-repeat`;
+    }
+    if (props.$isThemesEnabled) {
+      return props.$theme || '#191924';
+    }
+    return 'transparent';
+  }};
+  transition: background 0.3s ease;
 `
 
 const Wrapper = styled.div`
@@ -57,7 +66,7 @@ const ContactCard = styled.div`
 `
 
 const Contact = () => {
-  const { currentTheme, customBackground } = useTheme()
+  const { currentTheme, customBackground, isThemesEnabled } = useTheme()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -104,6 +113,7 @@ const Contact = () => {
         id="contact" 
         $theme={currentTheme}
         $customBackground={customBackground}
+        $isThemesEnabled={isThemesEnabled}
       >
         <Wrapper>
           <motion.div

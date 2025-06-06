@@ -9,6 +9,7 @@ import Contact from '../components/Contact'
 import Experiences from '../components/Experiences'
 import Testimonials from '../components/Testimonials'
 import Education from '../components/Education'
+import FrameAnimation from '../app/components/FrameAnimation'
 
 export default function Home() {
   useEffect(() => {
@@ -30,20 +31,22 @@ export default function Home() {
   }, [])
 
   return (
-    <main
-      className="min-h-screen"
-    >
-      <Navbar />
-      <div className='relative top-3'>
-
-      <Hero />
+    <main className="min-h-screen relative">
+      <div className="fixed inset-0 z-0">
+        <FrameAnimation />
       </div>
-      <About />
-      <Experiences />
-      <Education />
-      <Testimonials />
-      <Projects />
-      <Contact />
+      <div className="relative z-10">
+        <Navbar />
+        <div className='relative top-3'>
+          <Hero />
+        </div>
+        <About />
+        <Experiences />
+        <Education />
+        <Testimonials />
+        <Projects />
+        <Contact />
+      </div>
     </main>
   )
 }

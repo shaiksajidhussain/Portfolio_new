@@ -7,15 +7,45 @@ import { useTheme } from '../context/ThemeContext'
 
 const FloatingThemeButton = () => {
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false)
-  const { setTheme, setCustomBackground } = useTheme()
+  const { setTheme, setCustomBackground, isThemesEnabled, toggleThemes } = useTheme()
 
   return (
     <>
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="fixed bottom-8 right-8 z-50"
+        className="fixed bottom-8 right-8 z-50 flex flex-col gap-4"
       >
+        {/* Theme Toggle Button */}
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={toggleThemes}
+          className={`p-4 rounded-full shadow-lg transition-all duration-300 ${
+            isThemesEnabled 
+              ? 'bg-green-600 hover:bg-green-700 hover:shadow-green-500/25' 
+              : 'bg-red-600 hover:bg-red-700 hover:shadow-red-500/25'
+          } text-white`}
+        >
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d={isThemesEnabled 
+                ? "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" 
+                : "M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+              }
+            />
+          </svg>
+        </motion.button>
+
+        {/* Theme Selector Button */}
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}

@@ -77,7 +77,7 @@ const ProjectSkeletonCard = () => (
   </div>
 );
 
-const Container = styled.div<{ $theme: string | null; $customBackground: string | null }>`
+const Container = styled.div<{ $theme: string | null; $customBackground: string | null; $isThemesEnabled: boolean }>`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -91,7 +91,16 @@ const Container = styled.div<{ $theme: string | null; $customBackground: string 
   right: 50%;
   margin-left: -50vw;
   margin-right: -50vw;
-  background: ${props => props.$customBackground ? `url(${props.$customBackground}) center/cover no-repeat` : props.$theme || '#191924'};
+  background: ${props => {
+    if (props.$customBackground) {
+      return `url(${props.$customBackground}) center/cover no-repeat`;
+    }
+    if (props.$isThemesEnabled) {
+      return props.$theme || '#191924';
+    }
+    return 'transparent';
+  }};
+  transition: background 0.3s ease;
   @media (max-width: 960px) {
     flex-direction: column;
   }
@@ -195,7 +204,7 @@ const FILTERS = [
 const Projects = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   const [selectedFilter, setSelectedFilter] = useState('all')
-  const { currentTheme, customBackground } = useTheme()
+  const { currentTheme, customBackground, isThemesEnabled } = useTheme()
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const [projects, setProjects] = useState<ProjectData[]>([]); // Type the state with the new interface
   const [loading, setLoading] = useState(true); // State to indicate loading
@@ -255,6 +264,7 @@ const Projects = () => {
         id="projects" 
         $theme={currentTheme}
         $customBackground={customBackground}
+        $isThemesEnabled={isThemesEnabled}
     >
       <Wrapper>
         <motion.div

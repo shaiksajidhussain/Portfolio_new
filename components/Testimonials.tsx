@@ -14,7 +14,7 @@ import 'swiper/css'
 import 'swiper/css/pagination'
 import 'swiper/css/effect-coverflow'
 
-const Container = styled.div<{ $theme: string | null; $customBackground: string | null }>`
+const Container = styled.div<{ $theme: string | null; $customBackground: string | null; $isThemesEnabled: boolean }>`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -28,7 +28,16 @@ const Container = styled.div<{ $theme: string | null; $customBackground: string 
   right: 50%;
   margin-left: -50vw;
   margin-right: -50vw;
-  background: ${props => props.$customBackground ? `url(${props.$customBackground}) center/cover no-repeat` : props.$theme || '#191924'};
+  background: ${props => {
+    if (props.$customBackground) {
+      return `url(${props.$customBackground}) center/cover no-repeat`;
+    }
+    if (props.$isThemesEnabled) {
+      return props.$theme || '#191924';
+    }
+    return 'transparent';
+  }};
+  transition: background 0.3s ease;
 
   @media (max-width: 960px) {
     flex-direction: column;
@@ -144,13 +153,14 @@ const QuoteIcon = styled.div`
 `
 
 const Testimonials = () => {
-  const { currentTheme, customBackground } = useTheme()
+  const { currentTheme, customBackground, isThemesEnabled } = useTheme()
 
   return (
     <Container 
       id="testimonials" 
       $theme={currentTheme}
       $customBackground={customBackground}
+      $isThemesEnabled={isThemesEnabled}
     >
       <Wrapper>
         <motion.div
