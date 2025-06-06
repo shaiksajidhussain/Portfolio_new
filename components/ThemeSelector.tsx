@@ -3,7 +3,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { useTheme } from '../context/ThemeContext'
-import { Dialog } from '@headlessui/react'
+import Modal from './Modal'
 
 interface ThemeSelectorProps {
   isOpen: boolean;
@@ -169,59 +169,42 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
   const { currentTheme } = useTheme();
 
   return (
-    <Dialog open={isOpen} onClose={onClose} className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="fixed inset-0 bg-black/75" aria-hidden="true" />
-      <Dialog.Panel className="bg-[#1E1E2D] rounded-lg p-6 w-full max-w-2xl max-h-[90vh] relative flex flex-col">
-        <div className="flex justify-between items-center mb-6">
-          <Dialog.Title as="h2" className="text-2xl font-bold text-white">Select Theme</Dialog.Title>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
-            aria-label="Close"
+    <Modal isOpen={isOpen} onClose={onClose} title="Select Theme">
+      {/* Scrollable swatch grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {gradients.map((gradient) => (
+          <motion.button
+            key={gradient.name}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={`h-32 rounded-lg overflow-hidden relative group ${
+              currentTheme === gradient.value ? 'ring-2 ring-purple-500 ring-offset-2 ring-offset-[#1E1E2D]' : ''
+            }`}
+            onClick={() => {
+              onThemeSelect(gradient.value);
+              onCustomBackground(null); // Reset custom background when selecting a theme
+            }}
+            style={{ background: gradient.value }}
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        {/* Scrollable swatch grid */}
-        <div className="overflow-y-scroll overflow-x-hidden h-[60vh]">
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {gradients.map((gradient) => (
-              <motion.button
-                key={gradient.name}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`h-32 rounded-lg overflow-hidden relative group ${
-                  currentTheme === gradient.value ? 'ring-2 ring-purple-500 ring-offset-2 ring-offset-[#1E1E2D]' : ''
-                }`}
-                onClick={() => {
-                  onThemeSelect(gradient.value);
-                  onCustomBackground(null); // Reset custom background when selecting a theme
-                }}
-                style={{ background: gradient.value }}
-              >
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300" />
-                <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/60 to-transparent">
-                  <span className="text-white text-sm font-medium block">
-                    {gradient.name}
-                  </span>
-                  <div className="flex gap-1 mt-1">
-                    {gradient.colors.map((color, index) => (
-                      <div
-                        key={index}
-                        className="w-4 h-4 rounded-full border border-white/30"
-                        style={{ backgroundColor: color }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </motion.button>
-            ))}
-          </div>
-        </div>
-      </Dialog.Panel>
-    </Dialog>
+            <div className="absolute inset-0 bg-/75 bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300" />
+            <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/60 to-transparent">
+              <span className="text-white text-sm font-medium block">
+                {gradient.name}
+              </span>
+              <div className="flex gap-1 mt-1">
+                {gradient.colors.map((color, index) => (
+                  <div
+                    key={index}
+                    className="w-4 h-4 rounded-full border border-white/30"
+                    style={{ backgroundColor: color }}
+                  />
+                ))}
+              </div>
+            </div>
+          </motion.button>
+        ))}
+      </div>
+    </Modal>
   );
 };
 

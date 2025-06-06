@@ -15,11 +15,12 @@ interface ApiResponseItem {
   title: string;
   description: string;
   image: string;
-  tags?: string[]; // Making tags optional based on the sample, though it seems to be an array
-  category: string; // Assuming category is always a string
-  github?: string; // Optional
-  webapp?: string; // Optional
-  member?: Array<{ // Optional, defining a basic structure
+  tags?: string[];
+  category: string;
+  order?: number;
+  github?: string;
+  webapp?: string;
+  member?: Array<{
     name: string;
     img?: string;
     linkedin?: string;
@@ -32,16 +33,17 @@ interface ApiResponseItem {
 
 // Define the interface for the project data structure used in the component
 interface ProjectData {
-  _id: string; // Added _id for filtering and deletion in admin
+  _id: string;
   title: string;
   description: string;
   image: string;
   tags: string[];
   details: string;
-  type: string; // Renamed from category to type to match filtering logic
+  type: string;
+  order?: number;
   github?: string;
   webapp?: string;
-  member?: Array<{ // Assuming member structure based on API response
+  member?: Array<{
     name: string;
     img?: string;
     linkedin?: string;
@@ -187,6 +189,7 @@ const FILTERS = [
   { label: "WEB APP'S", value: "web" },
   { label: "ANDROID APP'S", value: "android" },
   { label: "Figma", value: "figma" },
+  { label: "Chrome Extensions", value: "chrome" },
 ];
 
 const Projects = () => {
@@ -197,6 +200,7 @@ const Projects = () => {
   const [projects, setProjects] = useState<ProjectData[]>([]); // Type the state with the new interface
   const [loading, setLoading] = useState(true); // State to indicate loading
   const [error, setError] = useState<string | null>(null); // State to hold error message
+  const [expandedDescription, setExpandedDescription] = useState<boolean>(false);
 
   useEffect(() => {
     AOS.init({ once: true });
@@ -206,20 +210,23 @@ const Projects = () => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const data: ApiResponseItem[] = await response.json(); // Type the incoming data as an array of ApiResponseItem
+        const data: ApiResponseItem[] = await response.json();
         // Map the API response structure to match the expected project structure
         const formattedProjects: ProjectData[] = data.map((item: ApiResponseItem) => ({
-          _id: item._id, // Include _id
+          _id: item._id,
           title: item.title,
           description: item.description,
           image: item.image,
-          tags: item.tags || [], // Ensure tags is an array, default to empty if missing
-          details: item.description, // Using description for details for now, adjust if API provides separate details
-          type: item.category === 'webapp' ? 'web' : (item.category ? item.category.toLowerCase() : 'other'), // Map category to type, handle missing category
+          tags: item.tags || [],
+          details: item.description,
+          type: item.category === 'webapp' ? 'web' : (item.category ? item.category.toLowerCase() : 'other'),
+          order: item.order || 0,
           github: item.github,
           webapp: item.webapp,
           member: item.member || []
         }));
+        // Sort projects by order
+        formattedProjects.sort((a, b) => (a.order || 0) - (b.order || 0));
         setProjects(formattedProjects);
       } catch (err: unknown) {
         console.error("Error fetching projects:", err);
@@ -359,7 +366,7 @@ const Projects = () => {
                         src={project.image && project.image.trim() !== '' ? project.image : 'https://via.placeholder.com/400x300.png?text=No+Image'}
                       alt={project.title}
                       fill
-                      className="object-cover"
+                      className="object-cover hover:scale-110 transition-all duration-300 ease-in-out"
                     />
                   </div>
                   <div className="p-6">
@@ -393,7 +400,6 @@ const Projects = () => {
       {openIndex !== null && filteredProjects[openIndex] && (
           <Modal>
             <motion.div
-         
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
@@ -401,22 +407,25 @@ const Projects = () => {
               <ModalContent>
                 <button
                   className="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl transition-colors"
-                  onClick={() => setOpenIndex(null)}
+                  onClick={() => {
+                    setOpenIndex(null);
+                    setExpandedDescription(false);
+                  }}
                   aria-label="Close"
                 >
                   &times;
                 </button>
                 <div className="w-full h-48 mb-4 rounded-lg overflow-hidden relative">
                   <Image
-                  src={filteredProjects[openIndex]?.image && filteredProjects[openIndex]?.image.trim() !== '' ? filteredProjects[openIndex]?.image : 'https://via.placeholder.com/400x300.png?text=No+Image'} // Placeholder if image is missing
-                  alt={filteredProjects[openIndex]?.title || 'Project image'}
+                    src={filteredProjects[openIndex]?.image && filteredProjects[openIndex]?.image.trim() !== '' ? filteredProjects[openIndex]?.image : 'https://via.placeholder.com/400x300.png?text=No+Image'}
+                    alt={filteredProjects[openIndex]?.title || 'Project image'}
                     fill
                     className="object-cover"
                   />
                 </div>
-              <h3 className="text-2xl font-bold text-white mb-2">{filteredProjects[openIndex]?.title}</h3>
+                <h3 className="text-2xl font-bold text-white mb-2">{filteredProjects[openIndex]?.title}</h3>
                 <div className="flex flex-wrap gap-2 mb-4">
-                {filteredProjects[openIndex]?.tags.map((tag) => (
+                  {filteredProjects[openIndex]?.tags.map((tag) => (
                     <span
                       key={tag}
                       className="px-3 py-1 bg-[rgba(133,76,230,0.2)] text-[#854ce6] rounded-full text-sm"
@@ -425,32 +434,44 @@ const Projects = () => {
                     </span>
                   ))}
                 </div>
-              <p className="text-gray-300 mb-4">{truncateDescription(filteredProjects[openIndex]?.description, 200)}</p>
-              {/* You might want to add links to github/webapp here if they exist in the fetched data */}
-              {(filteredProjects[openIndex]?.github || filteredProjects[openIndex]?.webapp) && (
-                <div className="flex gap-4 mt-4">
-                  {filteredProjects[openIndex]?.github && (
-                    <a 
-                      href={filteredProjects[openIndex]?.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-6 py-2 bg-gray-700 text-white rounded-lg font-semibold hover:bg-gray-600 transition-colors"
+                <div className="text-gray-300 mb-4">
+                  <p className={expandedDescription ? '' : 'line-clamp-3'}>
+                    {filteredProjects[openIndex]?.description}
+                  </p>
+                  {filteredProjects[openIndex]?.description && filteredProjects[openIndex]?.description.length > 200 && (
+                    <button
+                      onClick={() => setExpandedDescription(!expandedDescription)}
+                      className="text-[#854ce6] hover:text-[#9d6ff7] mt-2 font-medium transition-colors"
                     >
-                      GitHub
-                    </a>
-                  )}
-                  {filteredProjects[openIndex]?.webapp && (
-                    <a
-                      href={filteredProjects[openIndex]?.webapp}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-6 py-2 bg-gradient-to-r from-[#854ce6] to-[#5edfff] text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-[rgba(133,76,230,0.3)] transition-all duration-300"
-                    >
-                      View App
-                    </a>
+                      {expandedDescription ? 'Show Less' : 'Read More'}
+                    </button>
                   )}
                 </div>
-              )}
+                {/* You might want to add links to github/webapp here if they exist in the fetched data */}
+                {(filteredProjects[openIndex]?.github || filteredProjects[openIndex]?.webapp) && (
+                  <div className="flex gap-4 mt-4">
+                    {filteredProjects[openIndex]?.github && (
+                      <a 
+                        href={filteredProjects[openIndex]?.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-6 py-2 bg-gray-700 text-white rounded-lg font-semibold hover:bg-gray-600 transition-colors"
+                      >
+                        GitHub
+                      </a>
+                    )}
+                    {filteredProjects[openIndex]?.webapp && (
+                      <a
+                        href={filteredProjects[openIndex]?.webapp}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-6 py-2 bg-gradient-to-r from-[#854ce6] to-[#5edfff] text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-[rgba(133,76,230,0.3)] transition-all duration-300"
+                      >
+                        View App
+                      </a>
+                    )}
+                  </div>
+                )}
                 <button
                 className="mt-6 px-6 py-2 bg-gradient-to-r from-[#854ce6] to-[#5edfff] text-white rounded-lg 
                            font-semibold hover:shadow-lg hover:shadow-[rgba(133,76,230,0.3)] transition-all duration-300"

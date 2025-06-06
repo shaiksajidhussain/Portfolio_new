@@ -16,6 +16,7 @@ interface Project {
     image?: string;
     tags: string[];
     category?: string;
+    order?: number;
     github?: string;
     webapp?: string;
     member?: Member[];
@@ -34,6 +35,7 @@ const ProjectForm = ({ project, onClose, onSubmit }: ProjectFormProps) => {
         image: '',
         tags: [],
         category: '',
+        order: 0,
         github: '',
         webapp: '',
         member: []
@@ -151,6 +153,20 @@ const ProjectForm = ({ project, onClose, onSubmit }: ProjectFormProps) => {
                     onChange={handleChange}
                     className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                 />
+            </div>
+
+            <div>
+                <label htmlFor="order" className="block text-sm font-medium text-gray-300">Display Order</label>
+                <input
+                    type="number"
+                    id="order"
+                    name="order"
+                    value={formData.order}
+                    onChange={handleChange}
+                    min="0"
+                    className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                />
+                <p className="text-sm text-gray-400 mt-1">Lower numbers will appear first</p>
             </div>
 
             <div>

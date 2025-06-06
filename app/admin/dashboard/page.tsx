@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import ProjectForm from './ProjectForm';
 import config from '@/components/config';
 import Image from 'next/image';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
 interface Member {
     name: string;
@@ -42,6 +43,7 @@ const AdminDashboard = () => {
     const [isSubmittingCarousel, setIsSubmittingCarousel] = useState(false);
     const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null);
     const [deletingCarouselId, setDeletingCarouselId] = useState<string | null>(null);
+    const [isReordering, setIsReordering] = useState(false);
     const router = useRouter();
 
     const checkAuth = useCallback(() => {
@@ -160,6 +162,48 @@ const AdminDashboard = () => {
             alert('Failed to save carousel item. Please try again.');
         } finally {
             setIsSubmittingCarousel(false);
+        }
+    };
+
+    const handleDragEnd = async (result: DropResult) => {
+        if (!result.destination) return;
+
+        const items = Array.from(projects);
+        const [reorderedItem] = items.splice(result.source.index, 1);
+        items.splice(result.destination.index, 0, reorderedItem);
+
+        // Update local state immediately for smooth UI
+        setProjects(items);
+
+        // Update order in backend
+        try {
+            setIsReordering(true);
+            const updates = items.map((item, index) => ({
+                id: item._id || '',
+                order: index
+            }));
+
+            // Update all projects' order
+            await Promise.all(updates.map(update => 
+                fetch(`${config.CURRENT_URL}/api/projects/${update.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                    },
+                    body: JSON.stringify({ order: update.order })
+                })
+            ));
+
+            // Refresh projects to ensure sync
+            fetchProjects();
+        } catch (error) {
+            console.error('Error updating project order:', error);
+            alert('Failed to update project order. Please try again.');
+            // Refresh to get original order
+            fetchProjects();
+        } finally {
+            setIsReordering(false);
         }
     };
 
@@ -284,50 +328,84 @@ const AdminDashboard = () => {
                     {isLoadingProjects ? (
                         <div className="text-white text-center text-xl">Loading projects...</div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {projects.map((project, index) => (
-                                <div 
-                                    key={project._id || index} 
-                                    className="bg-white/10 backdrop-blur-lg rounded-xl p-6 shadow-xl transform transition-all duration-500 hover:scale-[1.02] animate-fade-in"
-                                    style={{ animationDelay: `${index * 100}ms` }}
-                                >
-                                    <h3 className="text-2xl font-bold text-white mb-3">{project.title}</h3>
-                                    <p className="text-gray-300 mb-4">{project.description.substring(0, 100)}...</p>
-                                    
-                                    {project.tags && project.tags.length > 0 && (
-                                        <div className="flex flex-wrap gap-2 mb-4">
-                                            {project.tags.map((tech, techIndex) => (
-                                                <span 
-                                                    key={techIndex}
-                                                    className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm border border-blue-500/30"
-                                                >
-                                                    {tech}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    )}
+                        <DragDropContext onDragEnd={handleDragEnd}>
+                            <Droppable droppableId="projects" type="PROJECT">
+                                {(provided) => (
+                                    <div
+                                        {...provided.droppableProps}
+                                        ref={provided.innerRef}
+                                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                                    >
+                                        {projects.map((project, index) => (
+                                            <Draggable
+                                                key={project._id || `project-${index}`}
+                                                draggableId={project._id || `project-${index}`}
+                                                index={index}
+                                            >
+                                                {(provided, snapshot) => (
+                                                    <div
+                                                        ref={provided.innerRef}
+                                                        {...provided.draggableProps}
+                                                        {...provided.dragHandleProps}
+                                                        className={`bg-white/10 backdrop-blur-lg rounded-xl p-6 shadow-xl transform transition-all duration-500 hover:scale-[1.02] animate-fade-in ${
+                                                            snapshot.isDragging ? 'opacity-50' : ''
+                                                        }`}
+                                                        style={{
+                                                            ...provided.draggableProps.style,
+                                                            animationDelay: `${index * 100}ms`
+                                                        }}
+                                                    >
+                                                        <div className="relative h-48 mb-4">
+                                                            <Image
+                                                                src={project.image || 'https://via.placeholder.com/400x300'}
+                                                                alt={project.title}
+                                                                fill
+                                                                className="object-cover rounded-lg"
+                                                            />
+                                                        </div>
+                                                        <h3 className="text-xl font-bold text-white mb-2">{project.title}</h3>
+                                                        <p className="text-gray-300 mb-4">{project.description.substring(0, 100)}...</p>
+                                                        
+                                                        {project.tags && project.tags.length > 0 && (
+                                                            <div className="flex flex-wrap gap-2 mb-4">
+                                                                {project.tags.map((tech, techIndex) => (
+                                                                    <span 
+                                                                        key={techIndex}
+                                                                        className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm border border-blue-500/30"
+                                                                    >
+                                                                        {tech}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        )}
 
-                                    <div className="flex gap-3">
-                                        <button 
-                                            onClick={() => {
-                                                setEditingProject(project);
-                                                setShowForm(true);
-                                            }}
-                                            className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-blue-500/25 transform transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"
-                                        >
-                                            Edit
-                                        </button>
-                                        <button 
-                                            onClick={() => project._id && handleDelete(project._id)}
-                                            className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-red-500/25 transform transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
-                                            disabled={deletingProjectId === project._id || !project._id}
-                                        >
-                                            {deletingProjectId === project._id ? 'Deleting...' : 'Delete'}
-                                        </button>
+                                                        <div className="flex gap-3">
+                                                            <button 
+                                                                onClick={() => {
+                                                                    setEditingProject(project);
+                                                                    setShowForm(true);
+                                                                }}
+                                                                className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-blue-500/25 transform transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                                                            >
+                                                                Edit
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => project._id && handleDelete(project._id)}
+                                                                className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-red-500/25 transform transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                                disabled={deletingProjectId === project._id || !project._id || isReordering}
+                                                            >
+                                                                {deletingProjectId === project._id ? 'Deleting...' : 'Delete'}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </Draggable>
+                                        ))}
+                                        {provided.placeholder}
                                     </div>
-                                </div>
-                            ))}
-                        </div>
+                                )}
+                            </Droppable>
+                        </DragDropContext>
                     )}
                 </section>
 
