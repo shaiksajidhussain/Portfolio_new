@@ -17,8 +17,9 @@ const nextConfig = {
       'reactnative.dev',
       'encrypted-tbn0.gstatic.com',
       'github.githubassets.com',
+      'example.com', // Added to fix the error with example.com domain
     ],
   },
 };
 
-module.exports = nextConfig; 
+module.exports = nextConfig;

@@ -136,7 +136,7 @@ const AdminDashboard = () => {
                 ? `${config.CURRENT_URL}/api/carausel/${editingCarousel._id}`
                 : `${config.CURRENT_URL}/api/carausel`;
             
-            await fetch(url, {
+            const response = await fetch(url, {
                 method,
                 headers: {
                     'Content-Type': 'application/json',
@@ -144,12 +144,20 @@ const AdminDashboard = () => {
                 },
                 body: JSON.stringify(formData)
             });
+
+            if (!response.ok) {
+                throw new Error('Failed to save carousel item');
+            }
+
+            const data = await response.json();
+            console.log('Carousel update response:', data);
             
             setShowCarouselForm(false);
             setEditingCarousel(null);
             fetchCarouselItems();
         } catch (error) {
             console.error('Error saving carousel item:', error);
+            alert('Failed to save carousel item. Please try again.');
         } finally {
             setIsSubmittingCarousel(false);
         }
@@ -333,9 +341,17 @@ const AdminDashboard = () => {
                             <form onSubmit={(e) => {
                                 e.preventDefault();
                                 const formData = new FormData(e.currentTarget);
+                                const imageUrl = formData.get('imageUrl') as string;
+                                const profilePic = formData.get('profilePic') as string;
+                                
+                                if (!imageUrl || !profilePic) {
+                                    alert('Please fill in all fields');
+                                    return;
+                                }
+
                                 handleCarouselSubmit({
-                                    imageUrl: formData.get('imageUrl') as string,
-                                    profilePic: formData.get('profilePic') as string
+                                    imageUrl,
+                                    profilePic
                                 });
                             }}>
                                 <div className="mb-4">

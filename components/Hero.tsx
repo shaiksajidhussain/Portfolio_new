@@ -28,7 +28,6 @@ const Hero = () => {
   const [loadingViews, setLoadingViews] = useState(true); // State for loading views
   const [viewError, setViewError] = useState<string | null>(null); // State for view error
   const [profilePic, setProfilePic] = useState<string>('https://res.cloudinary.com/defsu5bfc/image/upload/v1748891782/Sanju_debxey.jpg');
-  const [loadingProfilePic, setLoadingProfilePic] = useState(true);
 
   useEffect(() => {
     setMounted(true);
@@ -54,8 +53,6 @@ const Hero = () => {
         }
       } catch (error) {
         console.error('Error fetching profile picture:', error);
-      } finally {
-        setLoadingProfilePic(false);
       }
     };
 
@@ -193,17 +190,13 @@ const Hero = () => {
             className="md:w-1/2 flex justify-center md:justify-end mt-8 md:mt-0"
           >
             <div className="w-64 h-64 mx-auto rounded-full overflow-hidden border-4 border-purple-600 md:w-96 md:h-96 md:mx-0">
-              {loadingProfilePic ? (
-                <div className="w-full h-full bg-gray-700 animate-pulse" />
-              ) : (
-                <Image
-                  src={profilePic}
-                  alt="Sajid Hussain"
-                  width={384}
-                  height={384}
-                  className="object-cover w-full h-full"
-                />
-              )}
+              <Image
+                src={profilePic}
+                alt="Sajid Hussain"
+                width={384}
+                height={384}
+                className="object-cover w-full h-full"
+              />
             </div>
           </motion.div>
         </div>
@@ -217,17 +210,13 @@ const Hero = () => {
             transition={{ duration: 0.8 }}
             className="w-64 h-64 mx-auto rounded-full overflow-hidden border-4 border-purple-600 mb-8"
           >
-            {loadingProfilePic ? (
-              <div className="w-full h-full bg-gray-700 animate-pulse" />
-            ) : (
-              <Image
-                src={profilePic}
-                alt="Sajid Hussain"
-                width={400}
-                height={400}
-                className="object-cover w-full h-full"
-              />
-            )}
+            <Image
+              src={profilePic}
+              alt="Sajid Hussain"
+              width={400}
+              height={400}
+              className="object-cover w-full h-full"
+            />
           </motion.div>
           {/* Text Content */}
           <motion.div
