@@ -54,7 +54,7 @@ const FrameAnimation = () => {
       return new Promise<void>((resolve) => {
         for (let i = 1; i <= Frames.maxIndex; i++) {
           const img = new Image()
-          img.src = `/extracted/frame_${i.toString().padStart(4, "0")}.jpg`
+          img.src = `/blue/frame_${i.toString().padStart(4, "0")}.jpg`
 
           img.onload = () => {
             imagesLoadedRef.current++

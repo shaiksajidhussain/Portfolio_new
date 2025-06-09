@@ -26,7 +26,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-[99999] bg-black/70 flex items-center justify-center p-"
+          className="fixed inset-0 z-[99999] bg-black/70 flex items-center justify-center p-4 md:p-6"
           variants={backdrop}
           initial="hidden"
           animate="visible"
@@ -34,14 +34,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
           onClick={onClose}
         >
           <motion.div
-            className="bg-[#1E1E2D] rounded-lg w-full max-w-2xl max-h-[90vh] p-6 overflow-y-auto relative"
+            className="bg-[#1E1E2D] rounded-lg w-full max-w-2xl flex flex-col max-h-[90vh]"
             variants={modal}
             initial="hidden"
             animate="visible"
             exit="exit"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center p-4 md:p-6 border-b border-gray-700">
               <h2 className="text-xl font-bold text-white">{title || 'Modal Title'}</h2>
               <button
                 onClick={onClose}
@@ -55,8 +55,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
             </div>
 
             {/* Scrollable content */}
-            <div className="overflow-y-auto max-h-[65vh]">
-              {children}
+            <div className="flex-1 overflow-y-auto min-h-0">
+              <div className="p-4 md:p-6">
+                {children}
+              </div>
             </div>
           </motion.div>
         </motion.div>
