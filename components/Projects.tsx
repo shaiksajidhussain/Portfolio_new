@@ -6,8 +6,6 @@ import Image from 'next/image'
 import { useTheme } from '../context/ThemeContext'
 import styled from 'styled-components'
 import { useMediaQuery } from 'react-responsive'
-import 'aos/dist/aos.css'
-import AOS from 'aos'
 
 // Define the interface for the structure of an item from the API response
 interface ApiResponseItem {
@@ -135,6 +133,9 @@ const ProjectCard = styled.div`
   border: 1px solid rgba(133,76,230,0.2);
   transition: all 0.3s ease;
   cursor: pointer;
+  height: 400px; /* Fixed height for all cards */
+  display: flex;
+  flex-direction: column;
   &:hover {
     transform: translateY(-8px);
     box-shadow: 0 8px 12px rgba(133,76,230,0.2);
@@ -171,7 +172,8 @@ const ModalContent = styled.div`
 
 const MobileProjectCardContainer = styled(motion.div)`
   flex-shrink: 0;
-  width: 280px; /* Adjust card width as needed for mobile */
+  width: 280px;
+  height: 400px; /* Fixed height for mobile cards */
   scroll-snap-align: start;
 `
 
@@ -206,13 +208,12 @@ const Projects = () => {
   const [selectedFilter, setSelectedFilter] = useState('all')
   const { currentTheme, customBackground, isThemesEnabled } = useTheme()
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  const [projects, setProjects] = useState<ProjectData[]>([]); // Type the state with the new interface
-  const [loading, setLoading] = useState(true); // State to indicate loading
-  const [error, setError] = useState<string | null>(null); // State to hold error message
+  const [projects, setProjects] = useState<ProjectData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [expandedDescription, setExpandedDescription] = useState<boolean>(false);
 
   useEffect(() => {
-    AOS.init({ once: true });
     const fetchProjects = async () => {
       try {
         const response = await fetch('https://portfolio-backend-six-ruby.vercel.app/api/projects');
@@ -320,8 +321,6 @@ const Projects = () => {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
                   onClick={() => setOpenIndex(index)}
-                    data-aos="zoom-in-right"
-                    data-aos-duration="3000"
                 >
                   <ProjectCard>
                     <div className="relative h-36">
@@ -332,14 +331,14 @@ const Projects = () => {
                         className="object-cover"
                       />
                     </div>
-                    <div className="p-4">
+                    <div className="p-4 flex-1 flex flex-col">
                       <h3 className="text-lg font-semibold text-white mb-2">
                         {project.title}
                       </h3>
-                      <p className="text-gray-300 text-sm mb-3">
+                      <p className="text-gray-300 text-sm mb-3 flex-1">
                           {truncateDescription(project.description, 200)}
                       </p>
-                      <div className="flex flex-wrap gap-1">
+                      <div className="flex flex-wrap gap-1 mt-auto">
                         {project.tags.map((tag) => (
                           <span
                             key={tag}
@@ -367,8 +366,6 @@ const Projects = () => {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
                 onClick={() => setOpenIndex(index)}
-                  data-aos="zoom-in-right"
-                  data-aos-duration="3000"
               >
                 <ProjectCard>
                   <div className="relative h-48">
@@ -379,14 +376,14 @@ const Projects = () => {
                       className="object-cover hover:scale-110 transition-all duration-300 ease-in-out"
                     />
                   </div>
-                  <div className="p-6">
+                  <div className="p-6 flex-1 flex flex-col">
                     <h3 className="text-xl font-semibold text-white mb-2">
                       {project.title}
                     </h3>
-                    <p className="text-gray-300 mb-4">
+                    <p className="text-gray-300 mb-4 flex-1">
                         {truncateDescription(project.description, 200)}
                     </p>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 mt-auto">
                       {project.tags.map((tag) => (
                         <span
                           key={tag}

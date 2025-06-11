@@ -1,10 +1,11 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import 'aos/dist/aos.css'
 import AOS from 'aos'
 import { useTheme } from '../context/ThemeContext'
+import { motion } from 'framer-motion'
 
 const TimelineContainer = styled.div`
   position: relative;
@@ -141,19 +142,25 @@ const ExperienceCard = styled.div`
   }
 `
 
-const MobileExperienceCard = styled.div`
+const MobileExperienceCard = styled(motion.div)<{ $isExpanded: boolean }>`
   display: none;
   background: rgba(20, 20, 20, 0.95);
   border-radius: 20px;
-  padding: 1.5rem;
+  padding: 1.2rem;
   margin: 1rem 0;
   border: 1px solid rgba(133, 76, 230, 0.1);
   box-shadow: 0 0 20px rgba(133, 76, 230, 0.2);
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
+  width: 260px;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  height: ${props => props.$isExpanded ? '600px' : '400px'};
+  display: flex;
+  flex-direction: column;
 
   @media (max-width: 768px) {
-    display: block;
+    display: flex;
   }
 
   &:hover {
@@ -163,8 +170,28 @@ const MobileExperienceCard = styled.div`
   }
 `
 
+const MobileExperienceScrollContainer = styled.div`
+  display: none;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  gap: 16px;
+  padding: 0 1rem 16px 1rem;
+  width: 100%;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    display: flex;
+  }
+`
+
 const MobileCompanyName = styled.h3`
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: #854CE6;
   margin-bottom: 0.5rem;
@@ -175,7 +202,7 @@ const MobileCompanyName = styled.h3`
 `
 
 const MobileRole = styled.p`
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: #5edfff;
   margin-bottom: 0.5rem;
   font-weight: 500;
@@ -184,35 +211,64 @@ const MobileRole = styled.p`
 
 const MobilePeriod = styled.div`
   display: inline-block;
-  padding: 0.4rem 1rem;
+  padding: 0.3rem 0.8rem;
   background: linear-gradient(45deg, #854CE6, #5edfff);
   color: white;
   font-weight: 600;
   border-radius: 25px;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
+  margin-bottom: 0.8rem;
+  font-size: 0.8rem;
   box-shadow: 0 0 15px rgba(133, 76, 230, 0.2);
 `
 
-const MobileDescription = styled.p`
+const MobileDescription = styled.p<{ $isExpanded: boolean }>`
   color: #e0e0e0;
-  line-height: 1.6;
+  line-height: 1.5;
   margin-bottom: 1rem;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  flex: 1;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: ${props => props.$isExpanded ? 'unset' : '6'};
+  -webkit-box-orient: vertical;
+  cursor: pointer;
+  position: relative;
+  padding-bottom: 1.5rem;
+  transition: all 0.3s ease;
+
+  &::after {
+    content: '${props => props.$isExpanded ? 'Show Less' : 'Read More'}';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    color: #854CE6;
+    font-weight: 600;
+    font-size: 0.8rem;
+    background: linear-gradient(to bottom, transparent, rgba(20, 20, 20, 0.95) 50%);
+    padding-top: 2rem;
+    width: 100%;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+
+  &:hover::after {
+    color: #5edfff;
+  }
 `
 
 const MobileTechStack = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.4rem;
+  margin-top: auto;
 `
 
 const MobileTechTag = styled.span`
   background: rgba(133, 76, 230, 0.1);
   color: #5edfff;
-  padding: 0.4rem 0.8rem;
-  font-size: 0.85rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
   font-weight: 500;
   border: 1px solid rgba(94, 223, 255, 0.3);
   border-radius: 25px;
@@ -366,6 +422,14 @@ const experiences = [
 
 const Experiences = () => {
   const { currentTheme, customBackground, isThemesEnabled } = useTheme()
+  const [expandedCards, setExpandedCards] = useState<{ [key: number]: boolean }>({})
+
+  const toggleExpand = (index: number) => {
+    setExpandedCards(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }))
+  }
 
   useEffect(() => {
     AOS.init({ once: true })
@@ -385,7 +449,6 @@ const Experiences = () => {
         <TimelineContainer className="hidden md:block" data-aos="zoom-in" data-aos-duration="3000">
           {experiences.map((exp, idx) => (
             <ExperienceCard key={idx} >
-              
               <CompanyName>{exp.company}</CompanyName>
               <Role>{exp.role}</Role>
               <Period>{exp.period}</Period>
@@ -399,14 +462,26 @@ const Experiences = () => {
           ))}
         </TimelineContainer>
 
-        {/* Mobile Cards View */}
-        <div className="md:hidden space-y-4 px-4">
+        {/* Mobile Horizontal Scroll View */}
+        <MobileExperienceScrollContainer>
           {experiences.map((exp, idx) => (
-            <MobileExperienceCard key={idx} data-aos="zoom-in">
+            <MobileExperienceCard 
+              key={idx} 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: idx * 0.1 }}
+              viewport={{ once: true }}
+              $isExpanded={expandedCards[idx] || false}
+            >
               <MobileCompanyName>{exp.company}</MobileCompanyName>
               <MobileRole>{exp.role}</MobileRole>
               <MobilePeriod>{exp.period}</MobilePeriod>
-              <MobileDescription>{exp.description}</MobileDescription>
+              <MobileDescription 
+                $isExpanded={expandedCards[idx] || false}
+                onClick={() => toggleExpand(idx)}
+              >
+                {exp.description}
+              </MobileDescription>
               <MobileTechStack>
                 {exp.tech.map((t, i) => (
                   <MobileTechTag key={i}>{t}</MobileTechTag>
@@ -414,7 +489,7 @@ const Experiences = () => {
               </MobileTechStack>
             </MobileExperienceCard>
           ))}
-        </div>
+        </MobileExperienceScrollContainer>
       </Wrapper>
     </Container>
   )

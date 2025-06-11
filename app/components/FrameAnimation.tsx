@@ -43,7 +43,7 @@ const FrameAnimation = () => {
       const offsetX = (canvas.width - newWidth) / 2
       const offsetY = (canvas.height - newHeight) / 2
 
-      console.log(`Loading and drawing image index: ${index} with dimensions ${newWidth}x${newHeight} at offset ${offsetX},${offsetY}`)
+      // console.log(`Loading and drawing image index: ${index} with dimensions ${newWidth}x${newHeight} at offset ${offsetX},${offsetY}`)
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight)
       ctx.imageSmoothingEnabled = true

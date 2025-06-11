@@ -21,7 +21,7 @@ interface Project {
     tags: string[];
     category?: string;
     github?: string;
-    webapp?: string;
+    webapp?: string;    
     member?: Member[];
 }
 
@@ -29,6 +29,19 @@ interface CarouselItem {
     _id: string;
     imageUrl: string;
     profilePic: string;
+}
+
+interface BlogPost {
+    _id: string;
+    title: string;
+    slug: string;
+    excerpt: string;
+    image: string;
+    author: string;
+    readTime: string;
+    date: string;
+    views: number;
+    status: 'draft' | 'published';
 }
 
 const AdminDashboard = () => {
@@ -44,6 +57,9 @@ const AdminDashboard = () => {
     const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null);
     const [deletingCarouselId, setDeletingCarouselId] = useState<string | null>(null);
     const [isReordering, setIsReordering] = useState(false);
+    const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+    const [isLoadingBlogs, setIsLoadingBlogs] = useState(true);
+    const [deletingBlogId, setDeletingBlogId] = useState<string | null>(null);
     const router = useRouter();
 
     const checkAuth = useCallback(() => {
@@ -56,6 +72,7 @@ const AdminDashboard = () => {
     useEffect(() => {
         fetchProjects();
         fetchCarouselItems();
+        fetchBlogPosts();
         checkAuth();
     }, [checkAuth]);
 
@@ -82,6 +99,19 @@ const AdminDashboard = () => {
             console.error('Error fetching carousel items:', error);
         } finally {
             setIsLoadingCarousel(false);
+        }
+    };
+
+    const fetchBlogPosts = async () => {
+        setIsLoadingBlogs(true);
+        try {
+            const response = await fetch(`${config.CURRENT_URL}/api/blog`);
+            const data = await response.json();
+            setBlogPosts(data);
+        } catch (error) {
+            console.error('Error fetching blog posts:', error);
+        } finally {
+            setIsLoadingBlogs(false);
         }
     };
 
@@ -207,6 +237,25 @@ const AdminDashboard = () => {
         }
     };
 
+    const handleDeleteBlog = async (id: string) => {
+        if (window.confirm('Are you sure you want to delete this blog post?')) {
+            setDeletingBlogId(id);
+            try {
+                await fetch(`${config.CURRENT_URL}/api/blog/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                    }
+                });
+                fetchBlogPosts();
+            } catch (error) {
+                console.error('Error deleting blog post:', error);
+            } finally {
+                setDeletingBlogId(null);
+            }
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-6">
             <div className="max-w-7xl mx-auto">
@@ -283,6 +332,78 @@ const AdminDashboard = () => {
                                             disabled={deletingCarouselId === item._id}
                                         >
                                             {deletingCarouselId === item._id ? 'Deleting...' : 'Delete'}
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </section>
+
+                {/* Blog Section */}
+                <section className="mb-12">
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-2xl font-bold text-white">Blog Management</h2>
+                        <div className="flex gap-3">
+                            <button 
+                                onClick={() => router.push('/admin/blog/create')}
+                                className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-green-500/25 transform transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                            >
+                                Add New Blog Post
+                            </button>
+                            <button 
+                                onClick={() => router.push('/admin/blog')}
+                                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-blue-500/25 transform transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                            >
+                                View All Posts
+                            </button>
+                        </div>
+                    </div>
+
+                    {isLoadingBlogs ? (
+                        <div className="text-white text-center text-xl">Loading blog posts...</div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {blogPosts.slice(0, 3).map((post, index) => (
+                                <div 
+                                    key={post._id} 
+                                    className="bg-white/10 backdrop-blur-lg rounded-xl p-6 shadow-xl transform transition-all duration-500 hover:scale-[1.02] animate-fade-in"
+                                    style={{ animationDelay: `${index * 100}ms` }}
+                                >
+                                    <div className="relative h-48 mb-4">
+                                        <Image
+                                            src={post.image}
+                                            alt={post.title}
+                                            fill
+                                            className="object-cover rounded-lg"
+                                        />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-white mb-2">{post.title}</h3>
+                                    <p className="text-gray-300 mb-4">{post.excerpt.substring(0, 100)}...</p>
+                                    <div className="flex items-center gap-4 text-gray-400 mb-4">
+                                        <span>{post.date}</span>
+                                        <span>•</span>
+                                        <span>{post.views} views</span>
+                                        <span>•</span>
+                                        <span className={`px-2 py-1 rounded-full text-xs ${
+                                            post.status === 'published' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
+                                        }`}>
+                                            {post.status}
+                                        </span>
+                                    </div>
+                                    <div className="flex gap-3">
+                                        <button 
+                                            onClick={() => router.push(`/admin/blog/edit/${post._id}`)}
+                                            className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-blue-500/25 transform transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                                        >
+                                            Edit
+                                        </button>
+                                        <button 
+                                            onClick={() => handleDeleteBlog(post._id)}
+                                            className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-red-500/25 transform transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            disabled={deletingBlogId === post._id}
+                                        >
+                                            {deletingBlogId === post._id ? 'Deleting...' : 'Delete'}
                                         </button>
                                     </div>
                                 </div>

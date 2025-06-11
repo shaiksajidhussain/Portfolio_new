@@ -10,6 +10,7 @@ import Experiences from '../components/Experiences'
 import Testimonials from '../components/Testimonials'
 import Education from '../components/Education'
 import FrameAnimation from '../app/components/FrameAnimation'
+import Blog from '../components/Blog'
 
 export default function Home() {
   useEffect(() => {
@@ -45,6 +46,7 @@ export default function Home() {
         <Education />
         <Testimonials />
         <Projects />
+        <Blog />
         <Contact />
       </div>
     </main>
