@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { FaArrowLeft } from 'react-icons/fa'
 import config from '@/components/config';
 
@@ -15,8 +15,11 @@ interface BlogPost {
   status: 'draft' | 'published';
 }
 
-export default function EditBlogPost({ params }: { params: { id: string } }) {
+export default function EditBlogPost() {
   const router = useRouter()
+  const params = useParams()
+  const id = params?.id as string
+
   const [formData, setFormData] = useState<BlogPost>({
     title: '',
     content: '',
@@ -30,12 +33,22 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    fetchPost(params.id)
-  }, [params.id])
+    if (id) {
+      fetchPost(id)
+    }
+  }, [id])
 
-  const fetchPost = async (id: string) => {
+  if (!id) {
+    return (
+      <div className="min-h-screen bg-[#191924] text-white p-6 flex items-center justify-center">
+        <div className="text-red-400">Invalid blog post ID</div>
+      </div>
+    )
+  }
+
+  const fetchPost = async (postId: string) => {
     try {
-      const response = await fetch(`${config.CURRENT_URL}/api/blog/${id}`)
+      const response = await fetch(`${config.CURRENT_URL}/api/blog/${postId}`)
       const data = await response.json()
       setFormData({
         title: data.title,
@@ -66,7 +79,7 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
     setError('')
 
     try {
-      const response = await fetch(`${config.CURRENT_URL}/api/blog/${params.id}`, {
+      const response = await fetch(`${config.CURRENT_URL}/api/blog/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -188,7 +201,7 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
 
           <div>
             <label htmlFor="readTime" className="block text-sm font-medium text-gray-300 mb-2">
-              Read Time (e.g., "5 min read")
+              Read Time (e.g.,5 min read)
             </label>
             <input
               type="text"

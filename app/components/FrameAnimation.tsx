@@ -12,10 +12,10 @@ const FrameAnimation = () => {
   const imagesRef = useRef<HTMLImageElement[]>([])
   const imagesLoadedRef = useRef(0)
 
-  const Frames = {
+  const Frames = useRef({
     currentIndex: 0,
     maxIndex: 382,
-  }
+  })
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -52,18 +52,18 @@ const FrameAnimation = () => {
 
     const preload = () => {
       return new Promise<void>((resolve) => {
-        for (let i = 1; i <= Frames.maxIndex; i++) {
+        for (let i = 1; i <= Frames.current.maxIndex; i++) {
           const img = new Image()
           img.src = `/blue/frame_${i.toString().padStart(4, "0")}.jpg`
 
           img.onload = () => {
             imagesLoadedRef.current++
             if (progressRef.current) {
-              const percentage = Math.round((imagesLoadedRef.current / Frames.maxIndex) * 100)
+              const percentage = Math.round((imagesLoadedRef.current / Frames.current.maxIndex) * 100)
               progressRef.current.textContent = `${percentage}%`
             }
             
-            if (imagesLoadedRef.current === Frames.maxIndex) {
+            if (imagesLoadedRef.current === Frames.current.maxIndex) {
               console.log("All images are Loaded")
               if (loaderRef.current) {
                 loaderRef.current.style.opacity = '0'
@@ -84,8 +84,8 @@ const FrameAnimation = () => {
     const init = async () => {
       await preload()
       
-      gsap.to(Frames, {
-        currentIndex: Frames.maxIndex - 1,
+      gsap.to(Frames.current, {
+        currentIndex: Frames.current.maxIndex - 1,
         ease: "none",
         scrollTrigger: {
           trigger: ".parent",
@@ -93,7 +93,7 @@ const FrameAnimation = () => {
           end: "bottom bottom",
           scrub: 1,
           onUpdate: () => {
-            loadImage(Math.round(Frames.currentIndex))
+            loadImage(Math.round(Frames.current.currentIndex))
           }
         }
       })

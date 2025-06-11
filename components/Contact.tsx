@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useTheme } from '../context/ThemeContext'
 import styled from 'styled-components'
+import Image from 'next/image'
 
 const API_URL = 'https://portfolio-backend-six-ruby.vercel.app';
 // const API_URL = 'http://localhost:8089';
@@ -377,7 +378,13 @@ const Contact = () => {
               >
                   {status.type === 'success' ? (
                       <div className="flex flex-col items-center">
-                          <img src="https://res.cloudinary.com/defsu5bfc/image/upload/v1749132589/__xqkcam.gif" alt="Success" className="w-40 h-24 mb-4" />
+                          <Image 
+                              src="https://res.cloudinary.com/defsu5bfc/image/upload/v1749132589/__xqkcam.gif" 
+                              alt="Success" 
+                              width={160}
+                              height={96}
+                              className="mb-4"
+                          />
                           <p className="text-lg font-semibold mb-4">{status.message}</p>
                           <button 
                               className="px-6 py-2 bg-[rgba(133,76,230,0.2)] text-gray-300 rounded-lg hover:bg-[rgba(133,76,230,0.4)] transition-colors"

@@ -122,9 +122,26 @@ const ReadMore = styled(Link)`
   font-weight: 500;
   text-decoration: none;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 
   &:hover {
     color: #5edfff;
+  }
+`
+
+const LoadingSpinner = styled.div`
+  width: 12px;
+  height: 12px;
+  border: 2px solid #854CE6;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
 `
 
@@ -190,6 +207,7 @@ export default function Blog() {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [loadingPostId, setLoadingPostId] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchBlogPosts = async () => {
@@ -211,6 +229,46 @@ export default function Blog() {
     }
     fetchBlogPosts()
   }, [])
+
+  const handleReadMore = (postId: string) => {
+    setLoadingPostId(postId)
+  }
+
+  const renderBlogCard = (post: BlogPost, index: number) => (
+    <BlogCard
+      key={post._id}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      viewport={{ once: true }}
+      onClick={() => handleReadMore(post._id)}
+    >
+      <ImageContainer>
+        <Image
+          src={post.image}
+          alt={post.title}
+          fill
+          className="object-cover"
+        />
+      </ImageContainer>
+      <Content>
+        <Title>{post.title}</Title>
+        <Excerpt>{post.excerpt}</Excerpt>
+        <Meta>
+          <StyledDate>{new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</StyledDate>
+          <ReadMore href={`/blog/${post._id}`} onClick={(e) => e.stopPropagation()}>
+            {loadingPostId === post._id ? (
+              <>
+                Reading <LoadingSpinner />
+              </>
+            ) : (
+              'Read More →'
+            )}
+          </ReadMore>
+        </Meta>
+      </Content>
+    </BlogCard>
+  )
 
   if (isLoading) {
     return (
@@ -271,55 +329,13 @@ export default function Blog() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <BlogCard>
-                  <ImageContainer>
-                    <Image
-                      src={post.image}
-                      alt={post.title}
-                      fill
-                      className="object-cover"
-                    />
-                  </ImageContainer>
-                  <Content>
-                    <Title>{post.title}</Title>
-                    <Excerpt>{post.excerpt}</Excerpt>
-                    <Meta>
-                      <StyledDate>{new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</StyledDate>
-                      <ReadMore href={`/blog/${post._id}`}>Read More →</ReadMore>
-                    </Meta>
-                  </Content>
-                </BlogCard>
+                {renderBlogCard(post, index)}
               </MobileBlogCard>
             ))}
           </MobileBlogScrollContainer>
         ) : (
           <BlogGrid>
-            {blogPosts.map((post, index) => (
-              <BlogCard
-                key={post._id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <ImageContainer>
-                  <Image
-                    src={post.image}
-                    alt={post.title}
-                    fill
-                    className="object-cover"
-                  />
-                </ImageContainer>
-                <Content>
-                  <Title>{post.title}</Title>
-                  <Excerpt>{post.excerpt}</Excerpt>
-                  <Meta>
-                    <StyledDate>{new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</StyledDate>
-                    <ReadMore href={`/blog/${post._id}`}>Read More →</ReadMore>
-                  </Meta>
-                </Content>
-              </BlogCard>
-            ))}
+            {blogPosts.map((post, index) => renderBlogCard(post, index))}
           </BlogGrid>
         )}
       </Wrapper>

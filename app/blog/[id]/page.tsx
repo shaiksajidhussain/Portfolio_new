@@ -2,9 +2,36 @@
 
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { FaTwitter, FaLinkedin, FaFacebook, FaBookmark, FaRegBookmark, FaArrowLeft, FaEye } from 'react-icons/fa'
 import config from '@/components/config'
+
+const SkeletonLoader = () => (
+  <div className="min-h-screen bg-[#191924] text-white p-6">
+    <div className="max-w-4xl mx-auto mt-20">
+      {/* Title Skeleton */}
+      <div className="h-12 bg-gray-700 rounded-lg animate-pulse mb-8 w-3/4"></div>
+      
+      {/* Image Skeleton */}
+      <div className="w-full h-[400px] bg-gray-700 rounded-lg animate-pulse mb-8"></div>
+      
+      {/* Content Skeletons */}
+      <div className="space-y-4">
+        <div className="h-4 bg-gray-700 rounded animate-pulse w-full"></div>
+        <div className="h-4 bg-gray-700 rounded animate-pulse w-5/6"></div>
+        <div className="h-4 bg-gray-700 rounded animate-pulse w-4/6"></div>
+        <div className="h-4 bg-gray-700 rounded animate-pulse w-full"></div>
+        <div className="h-4 bg-gray-700 rounded animate-pulse w-5/6"></div>
+      </div>
+      
+      {/* Meta Info Skeleton */}
+      <div className="mt-8 flex items-center gap-4">
+        <div className="h-8 w-8 bg-gray-700 rounded-full animate-pulse"></div>
+        <div className="h-4 bg-gray-700 rounded animate-pulse w-32"></div>
+      </div>
+    </div>
+  </div>
+)
 
 interface BlogPost {
   _id: string;
@@ -19,11 +46,10 @@ interface BlogPost {
   status: 'draft' | 'published';
 }
 
-export default function BlogPost({ params }: { params: Promise<{ id: string }> }) {
+export default function BlogPost() {
   const router = useRouter()
-  const resolvedParams = React.use(params)
-  const postId = resolvedParams.id
-
+  const params = useParams()
+  const postId = params?.id as string
   const [post, setPost] = useState<BlogPost | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -31,23 +57,28 @@ export default function BlogPost({ params }: { params: Promise<{ id: string }> }
   const [isBookmarked, setIsBookmarked] = useState(false)
 
   useEffect(() => {
+    if (!postId) {
+      setError('Invalid blog post ID')
+      setIsLoading(false)
+      return
+    }
+
     const fetchPost = async () => {
-      setIsLoading(true)
-      setError(null)
       try {
         const response = await fetch(`${config.CURRENT_URL}/api/blog/${postId}`)
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
+          throw new Error('Failed to fetch blog post')
         }
         const data = await response.json()
         setPost(data)
       } catch (err) {
+        setError('Failed to load blog post')
         console.error('Error fetching blog post:', err)
-        setError('Failed to load blog post.')
       } finally {
         setIsLoading(false)
       }
     }
+
     fetchPost()
   }, [postId])
 
@@ -80,43 +111,13 @@ export default function BlogPost({ params }: { params: Promise<{ id: string }> }
   }
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#191924] text-white flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Loading blog post...</h1>
-        </div>
-      </div>
-    )
+    return <SkeletonLoader />
   }
 
-  if (error) {
+  if (error || !post) {
     return (
-      <div className="min-h-screen bg-[#191924] text-white flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Error: {error}</h1>
-          <button
-            onClick={() => router.push('/#blog')}
-            className="px-6 py-2 bg-[#854CE6] text-white rounded-lg hover:bg-[#6c3cb8] transition-colors"
-          >
-            Back to Home
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  if (!post) {
-    return (
-      <div className="min-h-screen bg-[#191924] text-white flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Post not found</h1>
-          <button
-            onClick={() => router.push('/#blog')}
-            className="px-6 py-2 bg-[#854CE6] text-white rounded-lg hover:bg-[#6c3cb8] transition-colors"
-          >
-            Back to Home
-          </button>
-        </div>
+      <div className="min-h-screen bg-[#191924] text-white p-6 flex items-center justify-center">
+        <div className="text-red-400">{error || 'Blog post not found'}</div>
       </div>
     )
   }
