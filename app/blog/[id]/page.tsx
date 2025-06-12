@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useRouter, useParams } from 'next/navigation'
 import { FaTwitter, FaLinkedin, FaFacebook, FaBookmark, FaRegBookmark, FaArrowLeft, FaEye } from 'react-icons/fa'
 import config from '@/components/config'
+import he from 'he'
 
 const SkeletonLoader = () => (
   <div className="min-h-screen bg-[#191924] text-white p-6">
@@ -132,7 +133,7 @@ export default function BlogPost() {
         />
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Back Button */}
         <button
           onClick={() => router.push('/#blog')}
@@ -172,46 +173,12 @@ export default function BlogPost() {
         </div>
 
         {/* Main Content */}
-        <div className="prose prose-invert max-w-none">
-          <div className="prose-headings:text-[#854CE6] prose-a:text-[#854CE6] prose-strong:text-[#854CE6]">
-            {post.content.split('\n\n').map((paragraph, index) => {
-              if (paragraph.startsWith('##')) {
-                const id = paragraph.replace('##', '').trim().toLowerCase().replace(/\s+/g, '-')
-                return (
-                  <h2 key={index} id={id} className="text-2xl font-bold mt-8 mb-4">
-                    {paragraph.replace('##', '').trim()}
-                  </h2>
-                )
-              }
-              if (paragraph.startsWith('###')) {
-                return (
-                  <h3 key={index} className="text-xl font-bold mt-6 mb-3">
-                    {paragraph.replace('###', '').trim()}
-                  </h3>
-                )
-              }
-              if (paragraph.startsWith('-')) {
-                return (
-                  <ul key={index} className="list-disc pl-6 mb-4">
-                    {paragraph.split('\n').map((item, i) => (
-                      <li key={i}>{item.replace('-', '').trim()}</li>
-                    ))}
-                  </ul>
-                )
-              }
-              if (paragraph.startsWith('1.')) {
-                return (
-                  <ol key={index} className="list-decimal pl-6 mb-4">
-                    {paragraph.split('\n').map((item, i) => (
-                      <li key={i}>{item.replace(/^\d+\./, '').trim()}</li>
-                    ))}
-                  </ol>
-                )
-              }
-              return <p key={index} className="mb-4 leading-relaxed">{paragraph}</p>
-            })}
-          </div>
-        </div>
+        <article className="prose prose-invert lg:prose-xl mx-auto">
+          <div 
+            className="prose-headings:text-[#854CE6] prose-a:text-[#854CE6] prose-strong:text-[#854CE6] prose-p:text-gray-300 prose-li:text-gray-300 prose-ul:list-disc prose-ol:list-decimal prose-ul:pl-6 prose-ol:pl-6 prose-headings:font-bold prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl prose-h4:text-xl prose-a:underline prose-a:decoration-[#854CE6] prose-a:underline-offset-4 hover:prose-a:decoration-2 prose-table:border-collapse prose-table:w-full prose-table:text-left prose-th:border prose-th:border-gray-400 prose-th:px-4 prose-th:py-2 prose-th:bg-gray-800 prose-td:border prose-td:border-gray-400 prose-td:px-4 prose-td:py-2 prose-code:bg-gray-800 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-[#854CE6] prose-img:rounded-xl prose-img:shadow-lg"
+            dangerouslySetInnerHTML={{ __html: he.decode(post.content) }}
+          />
+        </article>
 
         {/* Social Share */}
         <div className="mt-12 pt-8 border-t border-[#2D2D3A]">
@@ -250,4 +217,4 @@ export default function BlogPost() {
       </div>
     </div>
   )
-} 
+}

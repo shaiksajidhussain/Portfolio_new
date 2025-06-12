@@ -64,6 +64,7 @@ const BlogCard = styled(motion.div)`
   height: 450px;
   display: flex;
   flex-direction: column;
+  cursor: pointer;
 
   &:hover {
     transform: translateY(-5px);
@@ -77,6 +78,14 @@ const ImageContainer = styled.div`
   width: 100%;
   height: 200px;
   overflow: hidden;
+
+  img {
+    transition: transform 0.3s ease;
+  }
+
+  ${BlogCard}:hover & img {
+    transform: scale(1.1);
+  }
 `
 
 const Content = styled.div`
@@ -116,11 +125,10 @@ const StyledDate = styled.span`
   font-size: 0.9rem;
 `
 
-const ReadMore = styled(Link)`
+const ReadMore = styled.span`
   color: #854CE6;
   font-size: 0.9rem;
   font-weight: 500;
-  text-decoration: none;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
@@ -128,20 +136,6 @@ const ReadMore = styled(Link)`
 
   &:hover {
     color: #5edfff;
-  }
-`
-
-const LoadingSpinner = styled.div`
-  width: 12px;
-  height: 12px;
-  border: 2px solid #854CE6;
-  border-top: 2px solid transparent;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
   }
 `
 
@@ -207,7 +201,6 @@ export default function Blog() {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [loadingPostId, setLoadingPostId] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchBlogPosts = async () => {
@@ -230,44 +223,32 @@ export default function Blog() {
     fetchBlogPosts()
   }, [])
 
-  const handleReadMore = (postId: string) => {
-    setLoadingPostId(postId)
-  }
-
   const renderBlogCard = (post: BlogPost, index: number) => (
-    <BlogCard
-      key={post._id}
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      viewport={{ once: true }}
-      onClick={() => handleReadMore(post._id)}
-    >
-      <ImageContainer>
-        <Image
-          src={post.image}
-          alt={post.title}
-          fill
-          className="object-cover"
-        />
-      </ImageContainer>
-      <Content>
-        <Title>{post.title}</Title>
-        <Excerpt>{post.excerpt}</Excerpt>
-        <Meta>
-          <StyledDate>{new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</StyledDate>
-          <ReadMore href={`/blog/${post._id}`} onClick={(e) => e.stopPropagation()}>
-            {loadingPostId === post._id ? (
-              <>
-                Reading <LoadingSpinner />
-              </>
-            ) : (
-              'Read More →'
-            )}
-          </ReadMore>
-        </Meta>
-      </Content>
-    </BlogCard>
+    <Link href={`/blog/${post._id}`} key={post._id} style={{ textDecoration: 'none' }}>
+      <BlogCard
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: index * 0.1 }}
+        viewport={{ once: true }}
+      >
+        <ImageContainer>
+          <Image
+            src={post.image}
+            alt={post.title}
+            fill
+            className="object-cover"
+          />
+        </ImageContainer>
+        <Content>
+          <Title>{post.title}</Title>
+          <Excerpt>{post.excerpt}</Excerpt>
+          <Meta>
+            <StyledDate>{new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</StyledDate>
+            <ReadMore>Read More →</ReadMore>
+          </Meta>
+        </Content>
+      </BlogCard>
+    </Link>
   )
 
   if (isLoading) {
