@@ -14,7 +14,7 @@ const FrameAnimation = () => {
 
   const Frames = useRef({
     currentIndex: 0,
-    maxIndex: 382,
+    maxIndex: 600,
   })
 
   useEffect(() => {
@@ -54,7 +54,7 @@ const FrameAnimation = () => {
       return new Promise<void>((resolve) => {
         for (let i = 1; i <= Frames.current.maxIndex; i++) {
           const img = new Image()
-          img.src = `/blue/frame_${i.toString().padStart(4, "0")}.jpg`
+          img.src = `/neo/frame_${i.toString().padStart(4, "0")}.jpg`
 
           img.onload = () => {
             imagesLoadedRef.current++
@@ -88,9 +88,9 @@ const FrameAnimation = () => {
         currentIndex: Frames.current.maxIndex - 1,
         ease: "none",
         scrollTrigger: {
-          trigger: ".parent",
+          trigger: document.documentElement,
           start: "top top",
-          end: "bottom bottom",
+          end: "max",
           scrub: 1,
           onUpdate: () => {
             loadImage(Math.round(Frames.current.currentIndex))
@@ -112,11 +112,7 @@ const FrameAnimation = () => {
         <div className="text-white text-2xl">Loading... <span ref={progressRef}>0%</span></div>
       </div>
       
-      <div className="parent relative w-full h-[1000vh]">
-        <div className="h-screen w-full sticky top-0 left-0">
-          <canvas ref={canvasRef} />
-        </div>
-      </div>
+      <canvas ref={canvasRef} className="h-screen w-full" />
     </div>
   )
 }

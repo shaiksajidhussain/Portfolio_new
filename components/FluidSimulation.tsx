@@ -244,7 +244,7 @@ const FluidSimulation = () => {
     const container = containerRef.current
     if (!container) return
 
-    const renderer = new Renderer({ dpr: 2 })
+    const renderer = new Renderer({ dpr: 1 })
     const gl = renderer.gl as OGLRenderingContext
     container.appendChild(gl.canvas)
     gl.clearColor(0.098, 0.098, 0.141, 1.0)

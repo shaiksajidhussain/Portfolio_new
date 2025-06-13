@@ -33,6 +33,7 @@ const Container = styled.div<{ $theme: string | null; $customBackground: string 
     return 'transparent';
   }};
   transition: background 0.3s ease;
+  overflow-x: hidden;
 `
 
 const Wrapper = styled.div`
