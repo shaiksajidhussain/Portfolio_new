@@ -46,7 +46,9 @@ export default function Home() {
         <Education />
         <Testimonials />
         <Projects />
-        <Blog />
+        <div id="blogs">
+          <Blog />
+        </div>
         <Contact />
       </div>
     </main>
