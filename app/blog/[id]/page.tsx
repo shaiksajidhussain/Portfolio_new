@@ -139,7 +139,7 @@ export default function BlogPost() {
           onClick={() => router.push('/#blog')}
           className="flex items-center text-[#854CE6] hover:text-[#6c3cb8] transition-colors mb-8 mt-20"
         >
-          <FaArrowLeft className="mr-2" /> Back to Home
+          {/* <FaArrowLeft className="mr-2" /> Back to Home */}
         </button>
 
         {/* Header */}

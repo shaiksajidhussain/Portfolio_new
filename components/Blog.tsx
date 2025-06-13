@@ -65,7 +65,7 @@ const BlogCard = styled(motion.div)`
   display: flex;
   flex-direction: column;
   cursor: pointer;
-
+  
   &:hover {
     transform: translateY(-5px);
     border-color: rgba(133,76,230,0.4);
@@ -224,7 +224,7 @@ export default function Blog() {
   }, [])
 
   const renderBlogCard = (post: BlogPost, index: number) => (
-    <Link href={`/blog/${post._id}`} key={post._id} style={{ textDecoration: 'none' }}>
+    <Link href={`/blog/${post._id}`} key={post._id} style={{ textDecoration: 'none' }} target="_blank" rel="noopener noreferrer">
       <BlogCard
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
