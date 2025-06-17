@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { useRouter, useParams } from 'next/navigation'
-import { FaTwitter, FaLinkedin, FaFacebook, FaBookmark, FaRegBookmark, FaArrowLeft, FaEye } from 'react-icons/fa'
+import { FaTwitter, FaLinkedin, FaFacebook, FaBookmark, FaRegBookmark, FaEye } from 'react-icons/fa'
 import config from '@/components/config'
 import he from 'he'
 
