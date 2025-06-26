@@ -256,8 +256,8 @@ const Projects = () => {
 
   // Filter logic
   const filteredProjects = selectedFilter === 'all'
-    ? projects
-    : projects.filter(p => p.type === selectedFilter);
+    ? projects.slice(0, 12)
+    : projects.filter(p => p.type === selectedFilter).slice(0, 12);
 
   return (
     <>
@@ -329,6 +329,8 @@ const Projects = () => {
                         alt={project.title}
                         fill
                         className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        placeholder="empty"
                       />
                     </div>
                     <div className="p-4 flex-1 flex flex-col">
@@ -368,14 +370,6 @@ const Projects = () => {
                 onClick={() => setOpenIndex(index)}
               >
                 <ProjectCard>
-                  <div className="relative h-48">
-                    <Image
-                        src={project.image && project.image.trim() !== '' ? project.image : 'https://via.placeholder.com/400x300.png?text=No+Image'}
-                      alt={project.title}
-                      fill
-                      className="object-cover hover:scale-110 transition-all duration-300 ease-in-out"
-                    />
-                  </div>
                   <div className="p-6 flex-1 flex flex-col">
                     <h3 className="text-xl font-semibold text-white mb-2">
                       {project.title}
@@ -428,6 +422,8 @@ const Projects = () => {
                     alt={filteredProjects[openIndex]?.title || 'Project image'}
                     fill
                     className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    placeholder="empty"
                   />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-2">{filteredProjects[openIndex]?.title}</h3>

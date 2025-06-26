@@ -27,7 +27,7 @@ const Hero = () => {
   const hasIncrementedRef = useRef(false); // Ref to prevent multiple increments on mount
   const [loadingViews, setLoadingViews] = useState(true); // State for loading views
   const [viewError, setViewError] = useState<string | null>(null); // State for view error
-  const [profilePic, setProfilePic] = useState<string>('https://res.cloudinary.com/defsu5bfc/image/upload/v1748891782/Sanju_debxey.jpg');
+  const [profilePic, setProfilePic] = useState<string>('https://res.cloudinary.com/dgus6y6lm/image/upload/v1750953672/Sanju_debxey.jpg');
 
   useEffect(() => {
     setMounted(true);

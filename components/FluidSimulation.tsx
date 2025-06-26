@@ -220,7 +220,7 @@ interface OGLRenderingContext extends WebGLRenderingContext {
 const FluidSimulation = () => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [carouselImage, setCarouselImage] = useState<string | null>(null)
-  const defaultImage = 'https://res.cloudinary.com/defsu5bfc/image/upload/v1749818489/canva13_wu1dsc.png'
+  const defaultImage = 'https://res.cloudinary.com/dgus6y6lm/image/upload/v1750953716/canva13_wu1dsc.png'
 
   useEffect(() => {
     // Fetch carousel images
