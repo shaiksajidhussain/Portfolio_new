@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import Image from 'next/image'
+
 import { useTheme } from '../context/ThemeContext'
 import styled from 'styled-components'
 import { useMediaQuery } from 'react-responsive'
@@ -323,7 +323,7 @@ const Projects = () => {
                   onClick={() => setOpenIndex(index)}
                 >
                   <ProjectCard>
-                    <div className="relative h-36">
+                    {/* <div className="relative h-36">
                       <Image
                           src={project.image && project.image.trim() !== '' ? project.image : 'https://via.placeholder.com/400x300.png?text=No+Image'}
                         alt={project.title}
@@ -332,7 +332,7 @@ const Projects = () => {
                         sizes="(max-width: 768px) 100vw, 33vw"
                         placeholder="empty"
                       />
-                    </div>
+                    </div> */}
                     <div className="p-4 flex-1 flex flex-col">
                       <h3 className="text-lg font-semibold text-white mb-2">
                         {project.title}
@@ -416,7 +416,7 @@ const Projects = () => {
                 >
                   &times;
                 </button>
-                <div className="w-full h-48 mb-4 rounded-lg overflow-hidden relative">
+                {/* <div className="w-full h-48 mb-4 rounded-lg overflow-hidden relative">
                   <Image
                     src={filteredProjects[openIndex]?.image && filteredProjects[openIndex]?.image.trim() !== '' ? filteredProjects[openIndex]?.image : 'https://via.placeholder.com/400x300.png?text=No+Image'}
                     alt={filteredProjects[openIndex]?.title || 'Project image'}
@@ -425,7 +425,7 @@ const Projects = () => {
                     sizes="(max-width: 768px) 100vw, 33vw"
                     placeholder="empty"
                   />
-                </div>
+                </div> */}
                 <h3 className="text-2xl font-bold text-white mb-2">{filteredProjects[openIndex]?.title}</h3>
                 <div className="flex flex-wrap gap-2 mb-4">
                   {filteredProjects[openIndex]?.tags.map((tag) => (

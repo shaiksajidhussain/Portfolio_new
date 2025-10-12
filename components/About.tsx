@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled, { keyframes } from 'styled-components'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -8,6 +8,7 @@ import AOS from 'aos'
 import 'aos/dist/aos.css'
 import { useTheme } from '../context/ThemeContext'
 import Image from 'next/image'
+import SkillsSphereComponent from './SkillsSphere'
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger)
@@ -197,6 +198,70 @@ interface SkillCategory {
   skills: string[]
 }
 
+const ToggleButton = styled.button`
+  background: linear-gradient(135deg, #854ce6, #5edfff);
+  border: none;
+  border-radius: 25px;
+  padding: 12px 24px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 2rem 0;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(133, 76, 230, 0.3);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(133, 76, 230, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`
+
+const SphereContainer = styled.div`
+  width: 100%;
+  max-width: 900px;
+  height: 600px;
+  margin: 2rem auto;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+  position: relative;
+  border: 1px solid rgba(133, 76, 230, 0.2);
+
+  @media (max-width: 768px) {
+    height: 500px;
+    max-width: 95%;
+  }
+
+  @media (max-width: 480px) {
+    height: 400px;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 20%, rgba(133, 76, 230, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(94, 223, 255, 0.15) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Canvas should be above the background */
+  canvas {
+    position: relative;
+    z-index: 2;
+  }
+`
+
 const skillCategories: SkillCategory[] = [
   {
     title: 'Frontend',
@@ -225,6 +290,7 @@ const About = () => {
   const skillsRef = useRef<HTMLDivElement>(null)
   const skillCardsRef = useRef<(HTMLDivElement | null)[]>([])
   const skillItemsRef = useRef<(HTMLDivElement | null)[][]>([])
+  const [show3DSphere, setShow3DSphere] = useState(false)
 
   useEffect(() => {
     AOS.init()
@@ -323,45 +389,63 @@ const About = () => {
       <Wrapper>
         <Title className="skills-title">Skills</Title>
         <Desc className="skills-desc">Here are some of my skills on which I have been working on for the past 2 years.</Desc>
-        <SkillsContainer>
-          {skillCategories.map((skill, index) => (
-            <Skill 
-              key={index} 
-              ref={(el) => {
-                skillCardsRef.current[index] = el
+        
+        <ToggleButton onClick={() => setShow3DSphere(!show3DSphere)}>
+          {show3DSphere ? '📋 Show Traditional View' : '🌐 Show 3D Interactive Sphere'}
+        </ToggleButton>
+
+        {show3DSphere ? (
+          <SphereContainer>
+            <SkillsSphereComponent
+              skills={skillCategories}
+              skillImages={skillImages}
+              onSkillClick={(skill) => {
+                console.log(`Clicked on skill: ${skill}`)
+                // You can add more interactive behavior here
               }}
-            >
-              <SkillTitle>{skill.title}</SkillTitle>
-              <SkillList>
-                {skill.skills.map((item, itemIndex) => {
-                  // Use the mapped image for each skill, fallback to a default if not found
-                  const imgSrc = skillImages[item] || 'https://cdn-icons-png.flaticon.com/512/565/565547.png'
-                  return (
-                    <SkillItem 
-                      key={itemIndex} 
-                      className="skill-item"
-                      ref={(el) => {
-                        if (!skillItemsRef.current[index]) {
-                          skillItemsRef.current[index] = []
-                        }
-                        skillItemsRef.current[index][itemIndex] = el
-                      }}
-                    >
-                      <Image 
-                        src={imgSrc} 
-                        alt={`${item} icon`}
-                        width={24}
-                        height={24}
-                        style={{ marginRight: 8, borderRadius: 6, background: '#fff', objectFit: 'contain' }}
-                      />
-                      {item}
-                    </SkillItem>
-                  )
-                })}
-              </SkillList>
-            </Skill>
-          ))}
-        </SkillsContainer>
+            />
+          </SphereContainer>
+        ) : (
+          <SkillsContainer>
+            {skillCategories.map((skill, index) => (
+              <Skill 
+                key={index} 
+                ref={(el) => {
+                  skillCardsRef.current[index] = el
+                }}
+              >
+                <SkillTitle>{skill.title}</SkillTitle>
+                <SkillList>
+                  {skill.skills.map((item, itemIndex) => {
+                    // Use the mapped image for each skill, fallback to a default if not found
+                    const imgSrc = skillImages[item] || 'https://cdn-icons-png.flaticon.com/512/565/565547.png'
+                    return (
+                      <SkillItem 
+                        key={itemIndex} 
+                        className="skill-item"
+                        ref={(el) => {
+                          if (!skillItemsRef.current[index]) {
+                            skillItemsRef.current[index] = []
+                          }
+                          skillItemsRef.current[index][itemIndex] = el
+                        }}
+                      >
+                        <Image 
+                          src={imgSrc} 
+                          alt={`${item} icon`}
+                          width={24}
+                          height={24}
+                          style={{ marginRight: 8, borderRadius: 6, background: '#fff', objectFit: 'contain' }}
+                        />
+                        {item}
+                      </SkillItem>
+                    )
+                  })}
+                </SkillList>
+              </Skill>
+            ))}
+          </SkillsContainer>
+        )}
       </Wrapper>
     </Container>
   )

@@ -84,7 +84,10 @@ const ExperienceCard = styled.div`
   box-shadow: 0 0 20px rgba(133, 76, 230, 0.2);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(133, 76, 230, 0.1);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
   
   &::before {
     content: '';
@@ -96,7 +99,8 @@ const ExperienceCard = styled.div`
     top: 50%;
     transform: translateY(-50%);
     box-shadow: 0 0 15px rgba(133, 76, 230, 0.5);
-    transition: all 0.3s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    will-change: transform;
   }
 
   &:nth-child(odd) {
@@ -114,7 +118,7 @@ const ExperienceCard = styled.div`
   }
 
   &:hover {
-    transform: translateY(-8px) scale(1.02);
+    transform: translateY(-8px);
     box-shadow: 0 0 30px rgba(133, 76, 230, 0.3);
     border-color: rgba(133, 76, 230, 0.3);
     
@@ -151,13 +155,15 @@ const MobileExperienceCard = styled(motion.div)<{ $isExpanded: boolean }>`
   border: 1px solid rgba(133, 76, 230, 0.1);
   box-shadow: 0 0 20px rgba(133, 76, 230, 0.2);
   backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
   width: 260px;
   flex-shrink: 0;
   scroll-snap-align: start;
-  height: ${props => props.$isExpanded ? '600px' : '400px'};
+  min-height: 400px;
+  max-height: ${props => props.$isExpanded ? '800px' : '400px'};
   display: flex;
   flex-direction: column;
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: max-height;
 
   @media (max-width: 768px) {
     display: flex;
@@ -221,39 +227,39 @@ const MobilePeriod = styled.div`
   box-shadow: 0 0 15px rgba(133, 76, 230, 0.2);
 `
 
-const MobileDescription = styled.p<{ $isExpanded: boolean }>`
+const MobileDescription = styled.div<{ $isExpanded: boolean }>`
   color: #e0e0e0;
   line-height: 1.5;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   font-size: 0.85rem;
   text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
   flex: 1;
   overflow: hidden;
-  display: -webkit-box;
+  display: ${props => props.$isExpanded ? 'block' : '-webkit-box'};
   -webkit-line-clamp: ${props => props.$isExpanded ? 'unset' : '6'};
   -webkit-box-orient: vertical;
-  cursor: pointer;
-  position: relative;
-  padding-bottom: 1.5rem;
-  transition: all 0.3s ease;
+  transition: opacity 0.3s ease;
+  will-change: opacity;
+`
 
-  &::after {
-    content: '${props => props.$isExpanded ? 'Show Less' : 'Read More'}';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    color: #854CE6;
-    font-weight: 600;
-    font-size: 0.8rem;
-    background: linear-gradient(to bottom, transparent, rgba(20, 20, 20, 0.95) 50%);
-    padding-top: 2rem;
-    width: 100%;
-    text-align: center;
-    transition: all 0.3s ease;
+const ReadMoreButton = styled.button`
+  color: #854CE6;
+  font-weight: 600;
+  font-size: 0.8rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  width: 100%;
+  text-align: center;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: #5edfff;
   }
 
-  &:hover::after {
-    color: #5edfff;
+  &:active {
+    transform: scale(0.98);
   }
 `
 
@@ -272,13 +278,12 @@ const MobileTechTag = styled.span`
   font-weight: 500;
   border: 1px solid rgba(94, 223, 255, 0.3);
   border-radius: 25px;
-  transition: all 0.3s ease;
+  transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
   backdrop-filter: blur(5px);
 
   &:hover {
     background: rgba(133, 76, 230, 0.2);
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(133, 76, 230, 0.2);
     border-color: rgba(94, 223, 255, 0.5);
   }
 `
@@ -349,13 +354,12 @@ const TechTag = styled.span`
   font-weight: 500;
   border: 1px solid rgba(94, 223, 255, 0.3);
   border-radius: 25px;
-  transition: all 0.3s ease;
+  transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
   backdrop-filter: blur(5px);
 
   &:hover {
     background: rgba(133, 76, 230, 0.2);
     transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(133, 76, 230, 0.2);
     border-color: rgba(94, 223, 255, 0.5);
   }
 `
@@ -476,12 +480,12 @@ const Experiences = () => {
               <MobileCompanyName>{exp.company}</MobileCompanyName>
               <MobileRole>{exp.role}</MobileRole>
               <MobilePeriod>{exp.period}</MobilePeriod>
-              <MobileDescription 
-                $isExpanded={expandedCards[idx] || false}
-                onClick={() => toggleExpand(idx)}
-              >
+              <MobileDescription $isExpanded={expandedCards[idx] || false}>
                 {exp.description}
               </MobileDescription>
+              <ReadMoreButton onClick={() => toggleExpand(idx)}>
+                {expandedCards[idx] ? '▲ Show Less' : '▼ Read More'}
+              </ReadMoreButton>
               <MobileTechStack>
                 {exp.tech.map((t, i) => (
                   <MobileTechTag key={i}>{t}</MobileTechTag>
