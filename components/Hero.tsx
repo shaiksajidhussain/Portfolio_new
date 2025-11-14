@@ -242,7 +242,7 @@ const Hero = () => {
              <p className="text-lg text-gray-400 mb-8 max-w-md mx-auto">
               I am a motivated and versatile individual, always eager to take on new challenges. With a passion for learning I am dedicated to delivering high-quality results. With a positive attitude and a growth mindset, I am ready to make a meaningful contribution and achieve great things.
             </p>
-            <a href="https://drive.google.com/file/d/1PDYOJQFdpIK-cECppfRe4GbF6aJwZ2mX/view" target='_blank' rel="noopener noreferrer">
+            <a href="https://drive.google.com/file/d/1qpAX_ea2k-PmxlpA3ZFmeMYO0h3MqkrB/view?usp=sharing" target='_blank' rel="noopener noreferrer">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
